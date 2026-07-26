@@ -150,6 +150,26 @@ export default function OnboardingPage() {
     setErrorMsg('');
 
     try {
+      // 1. First check if account was already created in previous attempts
+      const { data: existingSession, error: signInErr } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!signInErr && existingSession?.user) {
+        const userId = existingSession.user.id;
+        setRegisteredUserId(userId);
+        await supabase
+          .from('users')
+          .update({ full_name: fullName, year_group: yearGroup })
+          .eq('id', userId);
+
+        await refreshProfile();
+        setStep(2);
+        return;
+      }
+
+      // 2. Otherwise create new account
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -161,6 +181,30 @@ export default function OnboardingPage() {
       });
 
       if (error) {
+        // If rate limited or user already registered, retry sign in
+        if (
+          error.message.toLowerCase().includes('rate limit') ||
+          error.message.toLowerCase().includes('already registered')
+        ) {
+          const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (!retryErr && retryData?.user) {
+            const userId = retryData.user.id;
+            setRegisteredUserId(userId);
+            await supabase
+              .from('users')
+              .update({ full_name: fullName, year_group: yearGroup })
+              .eq('id', userId);
+
+            await refreshProfile();
+            setStep(2);
+            return;
+          }
+        }
+
         setErrorMsg(error.message);
         setLoading(false);
         return;
@@ -171,7 +215,7 @@ export default function OnboardingPage() {
         setRegisteredUserId(userId);
         
         // Force-update the public profile fields
-        const { error: profileError } = await supabase
+        await supabase
           .from('users')
           .update({
             full_name: fullName,
@@ -179,11 +223,7 @@ export default function OnboardingPage() {
           })
           .eq('id', userId);
 
-        if (profileError) {
-          console.error('Profile update error:', profileError);
-        }
-
-        // Try automatic sign in immediately so session is active
+        // Try automatic sign in immediately
         await supabase.auth.signInWithPassword({ email, password });
       }
 
