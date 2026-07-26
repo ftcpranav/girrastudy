@@ -1,14 +1,14 @@
 -- ============================================================
--- GirraStudy — Full Database Migration (V1 + V2/V3 columns)
+-- GirraStudy — Optimal Production Database Migration
 -- Run this in Supabase SQL Editor: Project > SQL Editor > New Query
 -- ============================================================
 
--- Enable Extensions
+-- Enable Required Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "vector"; -- For V2 semantic search (pgvector)
+CREATE EXTENSION IF NOT EXISTS "vector"; -- For semantic search & AI notes (pgvector)
 
 -- ============================================================
--- 1. USERS (public profile synced from auth.users)
+-- 1. USERS (Public profile synced from auth.users)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 );
 
 -- ============================================================
--- 2. SUBJECTS (pre-seeded catalogue, admin managed)
+-- 2. SUBJECTS (Pre-seeded catalogue, admin managed)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS public.subjects (
 );
 
 -- ============================================================
--- 3. STUDENT SUBJECTS (enrolment junction table)
+-- 3. STUDENT SUBJECTS (Enrolment junction table)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.student_subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS public.marks (
 );
 
 -- ============================================================
--- 6. NOTES (with V2/V3 nullable columns pre-added)
+-- 6. NOTES (Support text, Google Docs, Drive, YouTube, Textbook)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.notes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -92,10 +92,8 @@ CREATE TABLE IF NOT EXISTS public.notes (
   is_pinned BOOLEAN DEFAULT FALSE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  -- V2: AI & Semantic Search columns (nullable)
   embedding VECTOR(1536),
   ai_summary TEXT,
-  -- V3: Community sharing (default private)
   is_public BOOLEAN DEFAULT FALSE NOT NULL
 );
 
@@ -113,18 +111,19 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 );
 
 -- ============================================================
--- 8. TOPICS (V3 - Community Topic Pages)
+-- 8. STUDY SESSIONS (Focus Timer Logging)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.topics (
+CREATE TABLE IF NOT EXISTS public.study_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  UNIQUE(subject_id, name)
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  subject_id UUID REFERENCES public.subjects(id) ON DELETE SET NULL,
+  duration_minutes INTEGER NOT NULL,
+  soundscape TEXT DEFAULT 'none',
+  completed_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
 -- ============================================================
--- 9. FLASHCARDS (V2 - Spaced Repetition)
+-- 9. FLASHCARDS (Spaced Repetition)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.flashcards (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -140,7 +139,7 @@ CREATE TABLE IF NOT EXISTS public.flashcards (
 );
 
 -- ============================================================
--- 10. QUIZZES (V2 - AI Generated Quizzes)
+-- 10. QUIZZES (Practice Quiz Deck)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.quizzes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -165,9 +164,18 @@ CREATE TABLE IF NOT EXISTS public.settings (
 );
 
 -- ============================================================
--- ROW LEVEL SECURITY
+-- PERFORMANCE INDEXES (Optimized Query Speed)
 -- ============================================================
+CREATE INDEX IF NOT EXISTS idx_student_subjects_user ON public.student_subjects(user_id);
+CREATE INDEX IF NOT EXISTS idx_assessments_user_due ON public.assessments(user_id, due_date);
+CREATE INDEX IF NOT EXISTS idx_marks_user_subject ON public.marks(user_id, subject_id);
+CREATE INDEX IF NOT EXISTS idx_notes_user_subject ON public.notes(user_id, subject_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications(user_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_user ON public.study_sessions(user_id);
 
+-- ============================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ============================================================
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_subjects ENABLE ROW LEVEL SECURITY;
@@ -175,61 +183,51 @@ ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.topics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.study_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 
--- Users: own profile only
-CREATE POLICY "users_select_own" ON public.users FOR SELECT USING (auth.uid() = id);
+-- Users policies
+CREATE POLICY "users_select_authenticated" ON public.users FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "users_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id);
 
--- Subjects: all authenticated users can read active subjects
-CREATE POLICY "subjects_select_all" ON public.subjects
-  FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "subjects_admin_all" ON public.subjects
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
-  );
+-- Subjects policies
+CREATE POLICY "subjects_select_all" ON public.subjects FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "subjects_admin_all" ON public.subjects FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+);
 
--- Student Subjects: own enrolments only
-CREATE POLICY "student_subjects_own" ON public.student_subjects
-  FOR ALL USING (auth.uid() = user_id);
+-- Student Subjects policies
+CREATE POLICY "student_subjects_own" ON public.student_subjects FOR ALL USING (auth.uid() = user_id);
 
--- Assessments: own records only
-CREATE POLICY "assessments_own" ON public.assessments
-  FOR ALL USING (auth.uid() = user_id);
+-- Assessments policies
+CREATE POLICY "assessments_own" ON public.assessments FOR ALL USING (auth.uid() = user_id);
 
--- Marks: own records only
-CREATE POLICY "marks_own" ON public.marks
-  FOR ALL USING (auth.uid() = user_id);
+-- Marks policies
+CREATE POLICY "marks_own" ON public.marks FOR ALL USING (auth.uid() = user_id);
 
--- Notes: own records only (V3 public notes handled by is_public column)
-CREATE POLICY "notes_own" ON public.notes
-  FOR ALL USING (auth.uid() = user_id);
+-- Notes policies (own notes OR public shared notes)
+CREATE POLICY "notes_own" ON public.notes FOR ALL USING (auth.uid() = user_id OR is_public = TRUE);
 
--- Notifications: own records only
-CREATE POLICY "notifications_own" ON public.notifications
-  FOR ALL USING (auth.uid() = user_id);
+-- Notifications policies
+CREATE POLICY "notifications_own" ON public.notifications FOR ALL USING (auth.uid() = user_id);
 
--- Topics: readable by all authenticated
-CREATE POLICY "topics_select_all" ON public.topics
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- Study Sessions policies
+CREATE POLICY "study_sessions_own" ON public.study_sessions FOR ALL USING (auth.uid() = user_id);
 
--- Flashcards: own records only
-CREATE POLICY "flashcards_own" ON public.flashcards
-  FOR ALL USING (auth.uid() = user_id);
+-- Flashcards policies
+CREATE POLICY "flashcards_own" ON public.flashcards FOR ALL USING (auth.uid() = user_id);
 
--- Quizzes: own records only
-CREATE POLICY "quizzes_own" ON public.quizzes
-  FOR ALL USING (auth.uid() = user_id);
+-- Quizzes policies
+CREATE POLICY "quizzes_own" ON public.quizzes FOR ALL USING (auth.uid() = user_id);
 
--- Settings: own records only
-CREATE POLICY "settings_own" ON public.settings
-  FOR ALL USING (auth.uid() = user_id);
+-- Settings policies
+CREATE POLICY "settings_own" ON public.settings FOR ALL USING (auth.uid() = user_id);
 
 -- ============================================================
--- TRIGGER: Auto-create public profile on sign-up
+-- TRIGGER FUNCTION: Sync auth.users to public.users & settings
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -241,7 +239,8 @@ BEGIN
     COALESCE(new.raw_user_meta_data->>'full_name', 'Student'),
     'student'
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email;
 
   INSERT INTO public.settings (user_id, dark_mode)
   VALUES (new.id, TRUE)
@@ -257,7 +256,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================================
--- SEED: Pre-defined HSC Subjects Catalogue
+-- SEED DATA: HSC Subjects Catalogue
 -- ============================================================
 INSERT INTO public.subjects (name, code) VALUES
   ('English Advanced', 'ENG_ADV'),
