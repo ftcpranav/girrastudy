@@ -1,16 +1,30 @@
 -- ============================================================
 -- GirraStudy — Fully Idempotent Production Database Migration
--- Run this in Supabase SQL Editor: Project > SQL Editor > New Query
+-- Run this ENTIRE script in: Supabase Dashboard > SQL Editor > New Query
 -- ============================================================
 
 -- Enable Required Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "vector"; -- For semantic search & AI notes (pgvector)
+
+-- ============================================================
+-- DROP EXISTING TABLES (clean slate, order matters for FK deps)
+-- ============================================================
+DROP TABLE IF EXISTS public.settings CASCADE;
+DROP TABLE IF EXISTS public.quizzes CASCADE;
+DROP TABLE IF EXISTS public.flashcards CASCADE;
+DROP TABLE IF EXISTS public.study_sessions CASCADE;
+DROP TABLE IF EXISTS public.notifications CASCADE;
+DROP TABLE IF EXISTS public.notes CASCADE;
+DROP TABLE IF EXISTS public.marks CASCADE;
+DROP TABLE IF EXISTS public.assessments CASCADE;
+DROP TABLE IF EXISTS public.student_subjects CASCADE;
+DROP TABLE IF EXISTS public.subjects CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
 
 -- ============================================================
 -- 1. USERS (Public profile synced from auth.users)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.users (
+CREATE TABLE public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT NOT NULL DEFAULT 'Student',
@@ -24,7 +38,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- ============================================================
 -- 2. SUBJECTS (Pre-seeded catalogue, admin managed)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.subjects (
+CREATE TABLE public.subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT UNIQUE NOT NULL,
   code TEXT UNIQUE NOT NULL,
@@ -35,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.subjects (
 -- ============================================================
 -- 3. STUDENT SUBJECTS (Enrolment junction table)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.student_subjects (
+CREATE TABLE public.student_subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
@@ -47,7 +61,7 @@ CREATE TABLE IF NOT EXISTS public.student_subjects (
 -- ============================================================
 -- 4. ASSESSMENTS
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.assessments (
+CREATE TABLE public.assessments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
@@ -64,7 +78,7 @@ CREATE TABLE IF NOT EXISTS public.assessments (
 -- ============================================================
 -- 5. MARKS
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.marks (
+CREATE TABLE public.marks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   assessment_id UUID REFERENCES public.assessments(id) ON DELETE SET NULL,
@@ -75,9 +89,9 @@ CREATE TABLE IF NOT EXISTS public.marks (
 );
 
 -- ============================================================
--- 6. NOTES (Support text, Google Docs, Drive, YouTube, Textbook)
+-- 6. NOTES
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.notes (
+CREATE TABLE public.notes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
@@ -92,7 +106,6 @@ CREATE TABLE IF NOT EXISTS public.notes (
   is_pinned BOOLEAN DEFAULT FALSE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  embedding VECTOR(1536),
   ai_summary TEXT,
   is_public BOOLEAN DEFAULT FALSE NOT NULL
 );
@@ -100,7 +113,7 @@ CREATE TABLE IF NOT EXISTS public.notes (
 -- ============================================================
 -- 7. NOTIFICATIONS
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.notifications (
+CREATE TABLE public.notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   message TEXT NOT NULL,
@@ -113,7 +126,7 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 -- ============================================================
 -- 8. STUDY SESSIONS (Focus Timer Logging)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.study_sessions (
+CREATE TABLE public.study_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID REFERENCES public.subjects(id) ON DELETE SET NULL,
@@ -125,7 +138,7 @@ CREATE TABLE IF NOT EXISTS public.study_sessions (
 -- ============================================================
 -- 9. FLASHCARDS (Spaced Repetition)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.flashcards (
+CREATE TABLE public.flashcards (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
@@ -141,7 +154,7 @@ CREATE TABLE IF NOT EXISTS public.flashcards (
 -- ============================================================
 -- 10. QUIZZES (Practice Quiz Deck)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.quizzes (
+CREATE TABLE public.quizzes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
@@ -155,7 +168,7 @@ CREATE TABLE IF NOT EXISTS public.quizzes (
 -- ============================================================
 -- 11. SETTINGS
 -- ============================================================
-CREATE TABLE IF NOT EXISTS public.settings (
+CREATE TABLE public.settings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID UNIQUE NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   dark_mode BOOLEAN DEFAULT TRUE NOT NULL,
@@ -164,17 +177,17 @@ CREATE TABLE IF NOT EXISTS public.settings (
 );
 
 -- ============================================================
--- PERFORMANCE INDEXES (Optimized Query Speed)
+-- PERFORMANCE INDEXES
 -- ============================================================
-CREATE INDEX IF NOT EXISTS idx_student_subjects_user ON public.student_subjects(user_id);
-CREATE INDEX IF NOT EXISTS idx_assessments_user_due ON public.assessments(user_id, due_date);
-CREATE INDEX IF NOT EXISTS idx_marks_user_subject ON public.marks(user_id, subject_id);
-CREATE INDEX IF NOT EXISTS idx_notes_user_subject ON public.notes(user_id, subject_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications(user_id, is_read);
-CREATE INDEX IF NOT EXISTS idx_study_sessions_user ON public.study_sessions(user_id);
+CREATE INDEX idx_student_subjects_user ON public.student_subjects(user_id);
+CREATE INDEX idx_assessments_user_due ON public.assessments(user_id, due_date);
+CREATE INDEX idx_marks_user_subject ON public.marks(user_id, subject_id);
+CREATE INDEX idx_notes_user_subject ON public.notes(user_id, subject_id);
+CREATE INDEX idx_notifications_user_unread ON public.notifications(user_id, is_read);
+CREATE INDEX idx_study_sessions_user ON public.study_sessions(user_id);
 
 -- ============================================================
--- ROW LEVEL SECURITY (RLS) POLICIES (Idempotent with DROP IF EXISTS)
+-- ROW LEVEL SECURITY (RLS)
 -- ============================================================
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
@@ -188,76 +201,98 @@ ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 
--- Users policies
-DROP POLICY IF EXISTS "users_select_authenticated" ON public.users;
-DROP POLICY IF EXISTS "users_insert_own" ON public.users;
-DROP POLICY IF EXISTS "users_update_own" ON public.users;
-CREATE POLICY "users_select_authenticated" ON public.users FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "users_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id);
+-- ============================================================
+-- USERS policies
+-- The trigger (SECURITY DEFINER) handles initial row creation.
+-- Authenticated users can read/update their own row only.
+-- ============================================================
+CREATE POLICY "users_select_own" ON public.users
+  FOR SELECT USING (auth.uid() = id);
 
--- Subjects policies
-DROP POLICY IF EXISTS "subjects_select_all" ON public.subjects;
-DROP POLICY IF EXISTS "subjects_admin_all" ON public.subjects;
-CREATE POLICY "subjects_select_all" ON public.subjects FOR SELECT USING (TRUE);
-CREATE POLICY "subjects_admin_all" ON public.subjects FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
-);
-
--- Student Subjects policies
-DROP POLICY IF EXISTS "student_subjects_own" ON public.student_subjects;
-CREATE POLICY "student_subjects_own" ON public.student_subjects FOR ALL USING (auth.uid() = user_id);
-
--- Assessments policies
-DROP POLICY IF EXISTS "assessments_own" ON public.assessments;
-CREATE POLICY "assessments_own" ON public.assessments FOR ALL USING (auth.uid() = user_id);
-
--- Marks policies
-DROP POLICY IF EXISTS "marks_own" ON public.marks;
-CREATE POLICY "marks_own" ON public.marks FOR ALL USING (auth.uid() = user_id);
-
--- Notes policies (own notes OR public shared notes)
-DROP POLICY IF EXISTS "notes_own" ON public.notes;
-CREATE POLICY "notes_own" ON public.notes FOR ALL USING (auth.uid() = user_id OR is_public = TRUE);
-
--- Notifications policies
-DROP POLICY IF EXISTS "notifications_own" ON public.notifications;
-CREATE POLICY "notifications_own" ON public.notifications FOR ALL USING (auth.uid() = user_id);
-
--- Study Sessions policies
-DROP POLICY IF EXISTS "study_sessions_own" ON public.study_sessions;
-CREATE POLICY "study_sessions_own" ON public.study_sessions FOR ALL USING (auth.uid() = user_id);
-
--- Flashcards policies
-DROP POLICY IF EXISTS "flashcards_own" ON public.flashcards;
-CREATE POLICY "flashcards_own" ON public.flashcards FOR ALL USING (auth.uid() = user_id);
-
--- Quizzes policies
-DROP POLICY IF EXISTS "quizzes_own" ON public.quizzes;
-CREATE POLICY "quizzes_own" ON public.quizzes FOR ALL USING (auth.uid() = user_id);
-
--- Settings policies
-DROP POLICY IF EXISTS "settings_own" ON public.settings;
-CREATE POLICY "settings_own" ON public.settings FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "users_update_own" ON public.users
+  FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
 -- ============================================================
--- TRIGGER FUNCTION: Sync auth.users to public.users & settings
+-- SUBJECTS policies
+-- Anyone can read. Only admins can write.
+-- ============================================================
+CREATE POLICY "subjects_select_all" ON public.subjects
+  FOR SELECT USING (TRUE);
+
+CREATE POLICY "subjects_admin_write" ON public.subjects
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+  ) WITH CHECK (
+    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- ============================================================
+-- STUDENT SUBJECTS policies
+-- Explicit INSERT + SELECT + DELETE for the authenticated user.
+-- ============================================================
+CREATE POLICY "student_subjects_select_own" ON public.student_subjects
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "student_subjects_insert_own" ON public.student_subjects
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "student_subjects_delete_own" ON public.student_subjects
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- All other table policies — own rows only
+-- ============================================================
+CREATE POLICY "assessments_own" ON public.assessments
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "marks_own" ON public.marks
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "notes_select" ON public.notes
+  FOR SELECT USING (auth.uid() = user_id OR is_public = TRUE);
+
+CREATE POLICY "notes_write" ON public.notes
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "notifications_own" ON public.notifications
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "study_sessions_own" ON public.study_sessions
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "flashcards_own" ON public.flashcards
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "quizzes_own" ON public.quizzes
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "settings_own" ON public.settings
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- TRIGGER: Sync auth.users → public.users + create settings
+-- SECURITY DEFINER bypasses RLS — safe because it only runs
+-- after a successful auth.users INSERT.
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.users (id, email, full_name, role)
   VALUES (
-    new.id,
-    new.email,
-    COALESCE(new.raw_user_meta_data->>'full_name', 'Student'),
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Student'),
     'student'
   )
   ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email;
+    email = EXCLUDED.email,
+    full_name = CASE
+      WHEN EXCLUDED.full_name != 'Student' THEN EXCLUDED.full_name
+      ELSE public.users.full_name
+    END;
 
   INSERT INTO public.settings (user_id, dark_mode)
-  VALUES (new.id, TRUE)
+  VALUES (NEW.id, TRUE)
   ON CONFLICT (user_id) DO NOTHING;
 
   RETURN NEW;

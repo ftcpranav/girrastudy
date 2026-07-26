@@ -18,49 +18,37 @@ import {
 import confetti from 'canvas-confetti';
 import { Subject } from '@/lib/types';
 
-const FALLBACK_SUBJECTS: Subject[] = [
-  { id: '11111111-1111-4111-a111-111111111101', name: 'English Advanced', code: 'ENG_ADV', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111102', name: 'English Standard', code: 'ENG_STD', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111103', name: 'English Extension 1', code: 'ENG_EXT1', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111104', name: 'English Extension 2', code: 'ENG_EXT2', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111105', name: 'Mathematics Advanced', code: 'MATH_ADV', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111106', name: 'Mathematics Extension 1', code: 'MATH_EXT1', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111107', name: 'Mathematics Extension 2', code: 'MATH_EXT2', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111108', name: 'Chemistry', code: 'CHEM', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111109', name: 'Physics', code: 'PHYS', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111110', name: 'Biology', code: 'BIOL', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111111', name: 'Economics', code: 'ECON', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111112', name: 'Business Studies', code: 'BUSS', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111113', name: 'Legal Studies', code: 'LEGL', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111114', name: 'Modern History', code: 'HIST_MOD', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111115', name: 'Ancient History', code: 'HIST_ANC', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111116', name: 'Software Engineering', code: 'SOFT_ENG', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111117', name: 'Engineering Studies', code: 'ENG_STUD', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111118', name: 'Information Processes and Technology', code: 'IPT', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111119', name: 'PDHPE', code: 'PDHPE', is_active: true, created_at: new Date().toISOString() },
-  { id: '11111111-1111-4111-a111-111111111120', name: 'Studies of Religion', code: 'SOR', is_active: true, created_at: new Date().toISOString() },
-];
+// ── Types ────────────────────────────────────────────────────
+interface DbSubject {
+  id: string;
+  name: string;
+  code: string;
+}
+
+// ── Constants ────────────────────────────────────────────────
+const SUBJECT_COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
 export default function OnboardingPage() {
-  const { user, profile, enrolledSubjects, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const router = useRouter();
 
+  // ── UI State ─────────────────────────────────────────────
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [registeredUserId, setRegisteredUserId] = useState<string>('');
 
-  // Step 1 states (User creation / verification)
+  // ── Step 1: Account ───────────────────────────────────────
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [yearGroup, setYearGroup] = useState<'Year 11' | 'Year 12' | ''>('');
 
-  // Step 2 states (Predefined subjects)
-  const [subjectsList, setSubjectsList] = useState<Subject[]>(FALLBACK_SUBJECTS);
+  // ── Step 2: Subjects ──────────────────────────────────────
+  // subjects loaded from DB (seeded). selectedSubjects stores their IDs.
+  const [subjectsList, setSubjectsList] = useState<DbSubject[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
-  // Step 3 states (Study preferences)
+  // ── Step 3: Preferences ───────────────────────────────────
   const preferencesOptions = [
     { id: 'assessment', label: 'Assessment tracking', desc: 'Deadlines, reminders, and status cards' },
     { id: 'mark', label: 'Mark monitoring', desc: 'Average grade logs, progression, and ATAR indicator' },
@@ -69,184 +57,125 @@ export default function OnboardingPage() {
   ];
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
 
-  // If user is already logged in but has incomplete profile, bypass step 1
+  // ── Effect: Skip step 1 if user is already authenticated ──
   useEffect(() => {
-    if (user && profile) {
-      if (profile.full_name && profile.full_name !== 'Student') {
-        setFullName(profile.full_name);
-      }
-      if (profile.year_group) {
-        setYearGroup(profile.year_group);
-      }
-      // If user exists, go straight to Step 2
-      if (step === 1) {
-        setStep(2);
-      }
+    if (user && profile && step === 1) {
+      if (profile.full_name && profile.full_name !== 'Student') setFullName(profile.full_name);
+      if (profile.year_group) setYearGroup(profile.year_group);
+      setEmail(profile.email || '');
+      setStep(2);
     }
   }, [user, profile]);
 
-  // Load subject list from Supabase with instant fallback
+  // ── Effect: Load subjects from DB (no auth required — public read) ──
   useEffect(() => {
     const fetchSubjects = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('subjects')
-          .select('*')
-          .eq('is_active', true)
-          .order('name', { ascending: true });
+      const { data, error } = await supabase
+        .from('subjects')
+        .select('id, name, code')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
 
-        if (!error && data && data.length > 0) {
-          setSubjectsList(data);
-        } else {
-          setSubjectsList(FALLBACK_SUBJECTS);
-        }
-      } catch (e) {
-        setSubjectsList(FALLBACK_SUBJECTS);
+      if (!error && data && data.length > 0) {
+        setSubjectsList(data);
       }
+      // If DB is empty or errored, subjectsList stays [] — handled in UI
     };
     fetchSubjects();
   }, []);
 
-  // Run confetti on Step 4
+  // ── Effect: Confetti on Step 4 ─────────────────────────────
   useEffect(() => {
-    if (step === 4) {
-      // Explode confetti!
-      const duration = 3 * 1000;
-      const end = Date.now() + duration;
-
-      const frame = () => {
-        confetti({
-          particleCount: 4,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: ['#8b5cf6', '#6366f1', '#a78bfa'],
-        });
-        confetti({
-          particleCount: 4,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: ['#8b5cf6', '#6366f1', '#a78bfa'],
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      };
-      frame();
-    }
+    if (step !== 4) return;
+    const end = Date.now() + 3000;
+    const frame = () => {
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#8b5cf6', '#6366f1', '#a78bfa'] });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#8b5cf6', '#6366f1', '#a78bfa'] });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
   }, [step]);
 
-  // Step 1: Sign up user
+  // ────────────────────────────────────────────────────────────
+  // STEP 1: Sign Up / Sign In
+  // ────────────────────────────────────────────────────────────
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName || !email || !password || !yearGroup) {
       setErrorMsg('Please complete all fields.');
       return;
     }
-
     setLoading(true);
     setErrorMsg('');
 
     try {
-      // 1. First check if account was already created in previous attempts
-      const { data: existingSession, error: signInErr } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // ① Try signing in first (handles returning users and rate-limit retries)
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (!signInErr && existingSession?.user) {
-        const userId = existingSession.user.id;
-        setRegisteredUserId(userId);
-        await supabase
-          .from('users')
-          .upsert({ id: userId, email, full_name: fullName, year_group: yearGroup, role: 'student' });
+      if (!signInError && signInData?.user) {
+        // Existing user — update their profile with the latest info
+        await supabase.from('users').update({
+          full_name: fullName,
+          year_group: yearGroup,
+        }).eq('id', signInData.user.id);
 
-        await refreshProfile(userId);
+        await refreshProfile(signInData.user.id);
         setStep(2);
         return;
       }
 
-      // 2. Otherwise create new account
-      const { data, error } = await supabase.auth.signUp({
+      // ② Not an existing user — sign up
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
+        options: { data: { full_name: fullName } },
       });
 
-      if (error) {
-        const isRateLimit = error.message.toLowerCase().includes('rate limit');
-        const isAlreadyRegistered = error.message.toLowerCase().includes('already registered');
-
-        if (isRateLimit || isAlreadyRegistered) {
-          // Attempt sign in
-          const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (!retryErr && retryData?.user) {
-            const userId = retryData.user.id;
-            setRegisteredUserId(userId);
-            await supabase
-              .from('users')
-              .upsert({ id: userId, email, full_name: fullName, year_group: yearGroup, role: 'student' });
-
-            await refreshProfile(userId);
-            setStep(2);
-            return;
-          }
-
-          // If Supabase Auth is rate-limited or unconfirmed email blocks sign-in,
-          // generate a valid PostgreSQL UUID so database insertions NEVER fail!
-          const fallbackUserId = typeof crypto !== 'undefined' && crypto.randomUUID 
-            ? crypto.randomUUID() 
-            : 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-          setRegisteredUserId(fallbackUserId);
-          
-          await supabase.from('users').upsert({
-            id: fallbackUserId,
-            email,
-            full_name: fullName,
-            year_group: yearGroup,
-            role: 'student',
-          });
-
-          await refreshProfile(fallbackUserId);
-          setStep(2);
-          return;
+      if (signUpError) {
+        // "User already registered" means wrong password — tell them
+        if (signUpError.message.toLowerCase().includes('already registered')) {
+          setErrorMsg('An account with this email already exists. Please check your password.');
+        } else if (signUpError.message.toLowerCase().includes('rate limit')) {
+          setErrorMsg('Too many sign-up attempts. Please wait a moment and try again.');
+        } else {
+          setErrorMsg(signUpError.message);
         }
-
-        setErrorMsg(error.message);
-        setLoading(false);
         return;
       }
 
-      const userId = data.user?.id;
-      if (userId) {
-        setRegisteredUserId(userId);
-        
-        // Force-update the public profile fields
-        await supabase
-          .from('users')
-          .upsert({
-            id: userId,
-            email,
-            full_name: fullName,
-            year_group: yearGroup,
-            role: 'student',
-          });
-
-        // Try automatic sign in immediately
-        await supabase.auth.signInWithPassword({ email, password });
+      const newUser = signUpData?.user;
+      if (!newUser) {
+        setErrorMsg('Sign up succeeded but no user was returned. Please try signing in.');
+        return;
       }
 
-      await refreshProfile(userId);
+      // ③ Update public profile with year_group (trigger only sets email + full_name)
+      // Must wait for the trigger to have created the row — retry with backoff
+      let profileUpdated = false;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+        const { error: updateErr } = await supabase
+          .from('users')
+          .update({ full_name: fullName, year_group: yearGroup })
+          .eq('id', newUser.id);
+        if (!updateErr) { profileUpdated = true; break; }
+      }
+
+      if (!profileUpdated) {
+        // Non-fatal: user row might need a sign-in first for session
+        console.warn('Could not update profile immediately; will retry after sign-in.');
+      }
+
+      // ④ Sign in immediately after sign-up (needed to establish session before DB writes)
+      const { data: postSignInData, error: postSignInErr } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (postSignInErr || !postSignInData?.user) {
+        // Email confirmation might be required — guide user forward anyway
+        setErrorMsg('Please check your email and confirm your account, then come back and sign in.');
+        return;
+      }
+
+      await refreshProfile(postSignInData.user.id);
       setStep(2);
     } catch (err: any) {
       setErrorMsg(err.message || 'An unexpected error occurred.');
@@ -255,88 +184,53 @@ export default function OnboardingPage() {
     }
   };
 
-  // Step 2: Enrol Subjects
+  // ────────────────────────────────────────────────────────────
+  // STEP 2: Enrol Subjects
+  // ────────────────────────────────────────────────────────────
   const handleEnrolSubjects = async () => {
     if (selectedSubjects.length < 2 || selectedSubjects.length > 6) {
       setErrorMsg('Please select between 2 and 6 subjects.');
       return;
     }
 
+    // CRITICAL: Must have a valid Supabase session before writing to student_subjects
+    // RLS policy: auth.uid() = user_id
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      setErrorMsg('Session expired. Please go back and sign in again.');
+      setStep(1);
+      return;
+    }
+
+    const currentUserId = session.user.id;
     setLoading(true);
     setErrorMsg('');
 
     try {
-      const currentUserId = user?.id || profile?.id || registeredUserId;
-      if (!currentUserId) {
-        setErrorMsg('Please complete Step 1 to create your student account first.');
-        setStep(1);
-        setLoading(false);
+      // Ensure year_group is set (in case update in step 1 was delayed)
+      if (yearGroup) {
+        await supabase.from('users').update({ year_group: yearGroup, full_name: fullName }).eq('id', currentUserId);
+      }
+
+      // Delete existing enrolments (idempotent re-entry)
+      await supabase.from('student_subjects').delete().eq('user_id', currentUserId);
+
+      // Insert new enrolments
+      const inserts = selectedSubjects.map((subjectId, i) => ({
+        user_id: currentUserId,
+        subject_id: subjectId,
+        color_hex: SUBJECT_COLORS[i % SUBJECT_COLORS.length],
+      }));
+
+      const { error: insertError } = await supabase.from('student_subjects').insert(inserts);
+
+      if (insertError) {
+        setErrorMsg(insertError.message);
         return;
       }
 
-      // Ensure user profile row exists before inserting student subjects
-      await supabase.from('users').upsert({
-        id: currentUserId,
-        email: email || 'student@girrastudy.com',
-        full_name: fullName || 'Student',
-        year_group: yearGroup || 'Year 12',
-        role: 'student',
-      });
-
-      // 1. Delete any existing student subject joins
-      await supabase
-        .from('student_subjects')
-        .delete()
-        .eq('user_id', currentUserId);
-
-      // Harmonious subject color array
-      const colors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
-
-      // Fetch DB subjects to match real UUIDs if available
-      const { data: dbSubjects } = await supabase.from('subjects').select('id, code, name');
-      
-      const resolveSubjectId = (subIdOrCode: string) => {
-        const localSub = subjectsList.find((s) => s.id === subIdOrCode);
-        if (dbSubjects && dbSubjects.length > 0 && localSub) {
-          const matchedDbSub = dbSubjects.find(
-            (d: any) => d.code === localSub.code || d.name === localSub.name || d.id === localSub.id
-          );
-          if (matchedDbSub) return matchedDbSub.id;
-        }
-        return subIdOrCode;
-      };
-
-      // Ensure selected subjects exist in DB table to satisfy foreign key
-      for (const subId of selectedSubjects) {
-        const localSub = subjectsList.find((s) => s.id === subId);
-        if (localSub) {
-          const targetId = resolveSubjectId(subId);
-          await supabase.from('subjects').upsert({
-            id: targetId,
-            name: localSub.name,
-            code: localSub.code,
-            is_active: true,
-          });
-        }
-      }
-
-      // 2. Insert selected subjects
-      const subjectInserts = selectedSubjects.map((subId, index) => ({
-        user_id: currentUserId,
-        subject_id: resolveSubjectId(subId),
-        color_hex: colors[index % colors.length],
-      }));
-
-      const { error } = await supabase
-        .from('student_subjects')
-        .insert(subjectInserts);
-
-      if (error) {
-        setErrorMsg(error.message);
-      } else {
-        await refreshProfile(currentUserId);
-        setStep(3);
-      }
+      await refreshProfile(currentUserId);
+      setStep(3);
     } catch (err: any) {
       setErrorMsg(err.message || 'Error enrolling subjects.');
     } finally {
@@ -344,30 +238,24 @@ export default function OnboardingPage() {
     }
   };
 
-  // Step 3: Study Preferences
+  // ────────────────────────────────────────────────────────────
+  // STEP 3: Study Preferences
+  // ────────────────────────────────────────────────────────────
   const handleSavePreferences = async () => {
     setLoading(true);
     setErrorMsg('');
 
     try {
-      const currentUserId = user?.id || profile?.id;
-      if (!currentUserId) throw new Error('No user session.');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error('Session expired.');
 
-      const { error } = await supabase
+      await supabase
         .from('users')
-        .update({
-          preferences_json: {
-            study_focus: selectedPreferences,
-          },
-        })
-        .eq('id', currentUserId);
+        .update({ preferences_json: { study_focus: selectedPreferences } })
+        .eq('id', session.user.id);
 
-      if (error) {
-        setErrorMsg(error.message);
-      } else {
-        await refreshProfile();
-        setStep(4);
-      }
+      await refreshProfile(session.user.id);
+      setStep(4);
     } catch (err: any) {
       setErrorMsg(err.message || 'Error saving preferences.');
     } finally {
@@ -375,37 +263,35 @@ export default function OnboardingPage() {
     }
   };
 
-  // Toggle subject selection
-  const toggleSubject = (subId: string) => {
-    if (selectedSubjects.includes(subId)) {
-      setSelectedSubjects(selectedSubjects.filter((id) => id !== subId));
+  // ── Helpers ───────────────────────────────────────────────
+  const toggleSubject = (id: string) => {
+    setErrorMsg('');
+    if (selectedSubjects.includes(id)) {
+      setSelectedSubjects(selectedSubjects.filter((s) => s !== id));
     } else {
       if (selectedSubjects.length >= 6) {
-        setErrorMsg('You can choose a maximum of 6 subjects.');
+        setErrorMsg('Maximum 6 subjects allowed.');
         return;
       }
-      setErrorMsg('');
-      setSelectedSubjects([...selectedSubjects, subId]);
+      setSelectedSubjects([...selectedSubjects, id]);
     }
   };
 
-  // Toggle preference selection
-  const togglePreference = (prefId: string) => {
-    if (selectedPreferences.includes(prefId)) {
-      setSelectedPreferences(selectedPreferences.filter((id) => id !== prefId));
-    } else {
-      setSelectedPreferences([...selectedPreferences, prefId]);
-    }
+  const togglePreference = (id: string) => {
+    setSelectedPreferences((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+    );
   };
 
+  // ── Render ─────────────────────────────────────────────────
   return (
     <div className="flex-1 min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12 relative overflow-hidden">
-      {/* Background radial effects */}
+      {/* Background radial blurs */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-violet-600/10 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[450px] h-[450px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
 
       <div className="w-full max-w-2xl animate-slide-up">
-        {/* Header Indicator */}
+        {/* Step indicator */}
         <div className="flex flex-col items-center mb-6">
           <div className="flex items-center gap-1.5 mb-2">
             {[1, 2, 3, 4].map((s) => (
@@ -422,7 +308,7 @@ export default function OnboardingPage() {
           </span>
         </div>
 
-        {/* Wizard Panel */}
+        {/* Wizard panel */}
         <div className="glass-card rounded-3xl p-8 md:p-10 shadow-2xl relative border-indigo-950/20">
           {errorMsg && (
             <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium animate-fade-in">
@@ -430,7 +316,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 1: Account Setup */}
+          {/* ── STEP 1: Account Setup ─────────────────────── */}
           {step === 1 && (
             <div className="animate-fade-in">
               <div className="flex items-center gap-3 mb-4">
@@ -492,6 +378,7 @@ export default function OnboardingPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-900/40 border border-indigo-950/20 rounded-xl text-sm focus:outline-none focus:border-violet-500/50 text-slate-200 placeholder-slate-600 transition-all"
                     required
+                    minLength={6}
                   />
                 </div>
 
@@ -511,7 +398,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 2: Predefined Subjects list */}
+          {/* ── STEP 2: Select Subjects ───────────────────── */}
           {step === 2 && (
             <div className="animate-fade-in">
               <div className="flex items-center gap-3 mb-4">
@@ -520,44 +407,50 @@ export default function OnboardingPage() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-100">Select HSC Subjects</h2>
-                  <p className="text-slate-400 text-xs">Select between 2 and 6 pre-catalogued subjects you study.</p>
+                  <p className="text-slate-400 text-xs">Select between 2 and 6 subjects you study.</p>
                 </div>
               </div>
 
-              {/* Grid of Subject Tiles */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[350px] overflow-y-auto mt-6 pr-1.5">
-                {subjectsList.map((sub) => {
-                  const isSelected = selectedSubjects.includes(sub.id);
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => toggleSubject(sub.id)}
-                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-violet-600/15 border-violet-500 text-slate-100 shadow-md shadow-violet-500/5'
-                          : 'bg-slate-900/20 border-indigo-950/20 text-slate-400 hover:border-indigo-850/40 hover:text-slate-200'
-                      }`}
-                    >
-                      <span className="text-xs font-semibold">{sub.name}</span>
-                      <div
-                        className={`h-4 w-4 rounded-full border flex items-center justify-center transition-all ${
+              {subjectsList.length === 0 ? (
+                <div className="flex items-center justify-center py-12 text-slate-500 text-sm">
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  Loading subjects…
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[350px] overflow-y-auto mt-6 pr-1.5">
+                  {subjectsList.map((sub) => {
+                    const isSelected = selectedSubjects.includes(sub.id);
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => toggleSubject(sub.id)}
+                        className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-violet-500 border-violet-400 text-slate-950'
-                            : 'border-slate-800'
+                            ? 'bg-violet-600/15 border-violet-500 text-slate-100 shadow-md shadow-violet-500/5'
+                            : 'bg-slate-900/20 border-indigo-950/20 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                         }`}
                       >
-                        {isSelected && <Check className="h-3 w-3 text-white stroke-[3px]" />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                        <span className="text-xs font-semibold">{sub.name}</span>
+                        <div
+                          className={`h-4 w-4 rounded-full border flex items-center justify-center transition-all ${
+                            isSelected ? 'bg-violet-500 border-violet-400' : 'border-slate-700'
+                          }`}
+                        >
+                          {isSelected && <Check className="h-3 w-3 text-white stroke-[3px]" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
               <div className="pt-6 flex items-center justify-between border-t border-indigo-950/10 mt-6">
                 <span className="text-xs text-slate-400">
                   Selected: <strong className="text-violet-400 font-bold">{selectedSubjects.length}</strong> / 6
                 </span>
                 <button
+                  type="button"
                   onClick={handleEnrolSubjects}
                   disabled={loading || selectedSubjects.length < 2 || selectedSubjects.length > 6}
                   className="py-2.5 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 active:scale-[0.99] text-white rounded-xl font-semibold text-sm transition-all flex items-center gap-2 border border-violet-500/35 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
@@ -568,7 +461,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 3: Study Focus Preferences */}
+          {/* ── STEP 3: Study Preferences ─────────────────── */}
           {step === 3 && (
             <div className="animate-fade-in">
               <div className="flex items-center gap-3 mb-4">
@@ -587,18 +480,17 @@ export default function OnboardingPage() {
                   return (
                     <button
                       key={opt.id}
+                      type="button"
                       onClick={() => togglePreference(opt.id)}
                       className={`w-full flex items-start p-4 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-violet-600/15 border-violet-500 text-slate-100'
-                          : 'bg-slate-900/20 border-indigo-950/20 text-slate-400 hover:border-indigo-850/40 hover:text-slate-200'
+                          : 'bg-slate-900/20 border-indigo-950/20 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                       }`}
                     >
                       <div
-                        className={`h-4.5 w-4.5 mt-0.5 rounded border flex items-center justify-center mr-3.5 shrink-0 transition-all ${
-                          isSelected
-                            ? 'bg-violet-500 border-violet-400 text-white'
-                            : 'border-slate-800'
+                        className={`h-4 w-4 mt-0.5 rounded border flex items-center justify-center mr-3.5 shrink-0 transition-all ${
+                          isSelected ? 'bg-violet-500 border-violet-400 text-white' : 'border-slate-700'
                         }`}
                       >
                         {isSelected && <Check className="h-3 w-3 text-white stroke-[3px]" />}
@@ -614,6 +506,7 @@ export default function OnboardingPage() {
 
               <div className="pt-6 flex items-center justify-between border-t border-indigo-950/10 mt-6">
                 <button
+                  type="button"
                   onClick={() => setStep(2)}
                   className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
                 >
@@ -621,17 +514,18 @@ export default function OnboardingPage() {
                   <span>Back</span>
                 </button>
                 <button
+                  type="button"
                   onClick={handleSavePreferences}
                   disabled={loading}
                   className="py-2.5 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 active:scale-[0.99] text-white rounded-xl font-semibold text-sm transition-all flex items-center gap-2 border border-violet-500/35 cursor-pointer disabled:opacity-50"
                 >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>Next</span><ArrowRight className="h-4 w-4" /></>}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>Finish</span><ArrowRight className="h-4 w-4" /></>}
                 </button>
               </div>
             </div>
           )}
 
-          {/* STEP 4: Ready Confirmation Screen */}
+          {/* ── STEP 4: Done ──────────────────────────────── */}
           {step === 4 && (
             <div className="text-center py-6 animate-fade-in flex flex-col items-center">
               <div className="h-16 w-16 bg-gradient-to-tr from-violet-600 to-indigo-500 rounded-full flex items-center justify-center text-white mb-6 border border-violet-400/20 shadow-xl shadow-violet-500/10 animate-bounce">
@@ -646,6 +540,7 @@ export default function OnboardingPage() {
               </p>
 
               <button
+                type="button"
                 onClick={() => router.push('/dashboard')}
                 className="mt-8 py-3 px-8 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 active:scale-[0.99] text-white rounded-xl font-bold text-sm transition-all shadow-xl shadow-violet-500/25 border border-violet-500/35 cursor-pointer flex items-center gap-2"
               >
