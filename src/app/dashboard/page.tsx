@@ -16,6 +16,8 @@ import {
   ExternalLink,
   BookOpen,
   PlayCircle,
+  Calculator,
+  Timer,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import AddAssessmentModal from '@/components/dashboard/AddAssessmentModal';
@@ -213,56 +215,82 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-8">
         <button
           onClick={() => setIsAssessmentOpen(true)}
-          className="flex items-center gap-3 p-4 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/20 hover:border-violet-500/30 text-violet-300 font-semibold rounded-2xl transition-all cursor-pointer group"
+          className="flex items-center gap-3 p-3.5 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/20 hover:border-violet-500/30 text-violet-300 font-semibold rounded-2xl transition-all cursor-pointer group"
         >
           <div className="p-2 rounded-xl bg-violet-600/20 text-violet-400 group-hover:scale-110 transition-transform">
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4.5 w-4.5" />
           </div>
           <div className="text-left">
-            <span className="text-xs block font-bold">Add Assessment</span>
+            <span className="text-xs block font-bold">Add Task</span>
             <span className="text-[10px] text-violet-400/80 font-normal">New deadline</span>
           </div>
         </button>
 
         <button
-          onClick={() => setIsNoteOpen(true)}
-          className="flex items-center gap-3 p-4 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 hover:border-emerald-500/30 text-emerald-300 font-semibold rounded-2xl transition-all cursor-pointer group"
+          onClick={() => router.push('/atar-calculator')}
+          className="flex items-center gap-3 p-3.5 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-300 font-semibold rounded-2xl transition-all cursor-pointer group"
         >
-          <div className="p-2 rounded-xl bg-emerald-600/20 text-emerald-400 group-hover:scale-110 transition-transform">
-            <Plus className="h-5 w-5" />
+          <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 group-hover:scale-110 transition-transform">
+            <Calculator className="h-4.5 w-4.5" />
           </div>
           <div className="text-left">
-            <span className="text-xs block font-bold">Add Study Note</span>
-            <span className="text-[10px] text-emerald-400/80 font-normal">Textbook or links</span>
+            <span className="text-xs block font-bold">ATAR Estimator</span>
+            <span className="text-[10px] text-indigo-400/80 font-normal">Scaling graphs</span>
           </div>
         </button>
 
         <button
-          onClick={() => router.push('/calendar')}
-          className="flex items-center gap-3 p-4 bg-slate-900/40 hover:bg-slate-900/60 border border-indigo-950/20 text-slate-300 font-semibold rounded-2xl transition-all cursor-pointer group"
+          onClick={() => router.push('/focus-timer')}
+          className="flex items-center gap-3 p-3.5 bg-pink-600/10 hover:bg-pink-600/20 border border-pink-500/20 hover:border-pink-500/30 text-pink-300 font-semibold rounded-2xl transition-all cursor-pointer group"
         >
-          <div className="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:scale-110 transition-transform">
-            <Calendar className="h-5 w-5" />
+          <div className="p-2 rounded-xl bg-pink-600/20 text-pink-400 group-hover:scale-110 transition-transform">
+            <Timer className="h-4.5 w-4.5" />
           </div>
           <div className="text-left">
-            <span className="text-xs block font-bold">View Calendar</span>
-            <span className="text-[10px] text-slate-500 font-normal">Monthly timeline</span>
+            <span className="text-xs block font-bold">Focus Timer</span>
+            <span className="text-[10px] text-pink-400/80 font-normal">Soundscapes</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => router.push('/resources')}
+          className="flex items-center gap-3 p-3.5 bg-amber-600/10 hover:bg-amber-600/20 border border-amber-500/20 hover:border-amber-500/30 text-amber-300 font-semibold rounded-2xl transition-all cursor-pointer group"
+        >
+          <div className="p-2 rounded-xl bg-amber-600/20 text-amber-400 group-hover:scale-110 transition-transform">
+            <BookOpen className="h-4.5 w-4.5" />
+          </div>
+          <div className="text-left">
+            <span className="text-xs block font-bold">Vault & Quiz</span>
+            <span className="text-[10px] text-amber-400/80 font-normal">Past papers</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => setIsNoteOpen(true)}
+          className="flex items-center gap-3 p-3.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 hover:border-emerald-500/30 text-emerald-300 font-semibold rounded-2xl transition-all cursor-pointer group"
+        >
+          <div className="p-2 rounded-xl bg-emerald-600/20 text-emerald-400 group-hover:scale-110 transition-transform">
+            <Plus className="h-4.5 w-4.5" />
+          </div>
+          <div className="text-left">
+            <span className="text-xs block font-bold">Add Note</span>
+            <span className="text-[10px] text-emerald-400/80 font-normal">Textbook/links</span>
           </div>
         </button>
 
         <button
           onClick={() => router.push('/markbook')}
-          className="flex items-center gap-3 p-4 bg-slate-900/40 hover:bg-slate-900/60 border border-indigo-950/20 text-slate-300 font-semibold rounded-2xl transition-all cursor-pointer group"
+          className="flex items-center gap-3 p-3.5 bg-slate-900/40 hover:bg-slate-900/60 border border-indigo-950/20 text-slate-300 font-semibold rounded-2xl transition-all cursor-pointer group"
         >
           <div className="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:scale-110 transition-transform">
-            <TrendingUp className="h-5 w-5" />
+            <TrendingUp className="h-4.5 w-4.5" />
           </div>
           <div className="text-left">
-            <span className="text-xs block font-bold">View Markbook</span>
-            <span className="text-[10px] text-slate-500 font-normal">Weighted graphs</span>
+            <span className="text-xs block font-bold">Markbook</span>
+            <span className="text-[10px] text-slate-500 font-normal">Weighted logs</span>
           </div>
         </button>
       </div>

@@ -10,6 +10,9 @@ import {
   TrendingUp,
   Calendar,
   FileText,
+  Calculator,
+  Timer,
+  BookOpen,
   LogOut,
   GraduationCap,
   ChevronRight,
@@ -27,6 +30,9 @@ export default function Sidebar({ className }: SidebarProps) {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'ATAR Calculator', href: '/atar-calculator', icon: Calculator },
+    { name: 'Focus Timer', href: '/focus-timer', icon: Timer },
+    { name: 'Resource Vault', href: '/resources', icon: BookOpen },
     { name: 'Assessments', href: '/assessments', icon: CheckSquare },
     { name: 'Markbook', href: '/markbook', icon: TrendingUp },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
@@ -65,7 +71,7 @@ export default function Sidebar({ className }: SidebarProps) {
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
@@ -85,7 +91,7 @@ export default function Sidebar({ className }: SidebarProps) {
                 {isActive && (
                   <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
                 )}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -105,7 +111,7 @@ export default function Sidebar({ className }: SidebarProps) {
               const href = `/subjects/${sub.subject_id}`;
               const isActive = pathname === href;
               return (
-                <a
+                <Link
                   key={sub.id}
                   href={href}
                   className={cn(
@@ -123,7 +129,7 @@ export default function Sidebar({ className }: SidebarProps) {
                     <span className="truncate">{sub.subject?.name}</span>
                   </div>
                   <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all text-slate-500" />
-                </a>
+                </Link>
               );
             })}
             {enrolledSubjects.length === 0 && (
@@ -140,7 +146,7 @@ export default function Sidebar({ className }: SidebarProps) {
             <span className="px-3 block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
               Administration
             </span>
-            <a
+            <Link
               href="/admin"
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group border',
@@ -151,7 +157,7 @@ export default function Sidebar({ className }: SidebarProps) {
             >
               <ShieldCheck className="h-5 w-5 text-indigo-400 group-hover:scale-110 transition-transform" />
               <span>Admin Panel</span>
-            </a>
+            </Link>
           </div>
         )}
       </nav>
@@ -182,3 +188,4 @@ export default function Sidebar({ className }: SidebarProps) {
     </aside>
   );
 }
+
