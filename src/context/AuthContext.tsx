@@ -11,7 +11,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   enrolledSubjects: StudentSubject[];
   loading: boolean;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: (explicitUserId?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -27,29 +27,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfileAndSubjects = async (userId: string) => {
     try {
-      // Fetch profile
-      const { data: profileData, error: profileError } = await supabase
+      // 1. Fetch profile using maybeSingle
+      let { data: profileData } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        return;
+      // If user profile is missing in public.users, create default profile row
+      if (!profileData) {
+        const { data: authUserRes } = await supabase.auth.getUser();
+        const userAuth = authUserRes?.user;
+        const newProfile = {
+          id: userId,
+          email: userAuth?.email || 'student@girrastudy.com',
+          full_name: userAuth?.user_metadata?.full_name || 'Student',
+          year_group: null,
+          role: 'student',
+          preferences_json: {},
+        };
+
+        await supabase.from('users').upsert(newProfile);
+        profileData = newProfile as any;
       }
 
       setProfile(profileData);
 
-      // Fetch enrolled subjects
+      // 2. Fetch enrolled subjects
       const { data: subjectData, error: subjectError } = await supabase
         .from('student_subjects')
         .select('*, subject:subjects(*)')
         .eq('user_id', userId);
 
-      if (subjectError) {
-        console.error('Error fetching enrolled subjects:', subjectError);
-      } else {
+      if (!subjectError) {
         setEnrolledSubjects(subjectData || []);
       }
     } catch (err) {
@@ -57,9 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const refreshProfile = async () => {
-    if (user) {
-      await fetchProfileAndSubjects(user.id);
+  const refreshProfile = async (explicitUserId?: string) => {
+    const targetId = explicitUserId || user?.id;
+    if (targetId) {
+      await fetchProfileAndSubjects(targetId);
     }
   };
 
@@ -84,9 +95,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: any, session: any) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfileAndSubjects(session.user.id);
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        if (currentUser) {
+          await fetchProfileAndSubjects(currentUser.id);
         } else {
           setProfile(null);
           setEnrolledSubjects([]);
@@ -108,23 +120,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isOnboardingRoute = pathname === '/onboarding';
 
     if (!user) {
-      // Redirect unauthenticated users to landing/login, but allow them to access onboarding (Step 1)
+      // Redirect unauthenticated users to landing/login if trying to access private routes
       if (!isPublicRoute && !isOnboardingRoute) {
         router.push('/');
       }
     } else {
       // Authenticated user checks
-      const hasCompletedOnboarding = 
-        profile?.year_group !== null && 
+      const hasCompletedOnboarding =
+        Boolean(profile?.year_group) &&
         enrolledSubjects.length >= 2;
 
       if (!hasCompletedOnboarding) {
-        // Force onboarding if they haven't finished it
+        // Redirect to onboarding if incomplete
         if (!isOnboardingRoute) {
           router.push('/onboarding');
         }
       } else {
-        // If they have completed onboarding, prevent them from accessing landing or onboarding
+        // Prevent access to landing or onboarding once completed
         if (isPublicRoute || isOnboardingRoute) {
           router.push('/dashboard');
         }
