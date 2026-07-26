@@ -1,5 +1,5 @@
 -- ============================================================
--- GirraStudy — Optimal Production Database Migration
+-- GirraStudy — Fully Idempotent Production Database Migration
 -- Run this in Supabase SQL Editor: Project > SQL Editor > New Query
 -- ============================================================
 
@@ -174,7 +174,7 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications
 CREATE INDEX IF NOT EXISTS idx_study_sessions_user ON public.study_sessions(user_id);
 
 -- ============================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
+-- ROW LEVEL SECURITY (RLS) POLICIES (Idempotent with DROP IF EXISTS)
 -- ============================================================
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
@@ -189,41 +189,55 @@ ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
+DROP POLICY IF EXISTS "users_select_authenticated" ON public.users;
+DROP POLICY IF EXISTS "users_insert_own" ON public.users;
+DROP POLICY IF EXISTS "users_update_own" ON public.users;
 CREATE POLICY "users_select_authenticated" ON public.users FOR SELECT USING (auth.role() = 'authenticated');
 CREATE POLICY "users_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id);
 
 -- Subjects policies
+DROP POLICY IF EXISTS "subjects_select_all" ON public.subjects;
+DROP POLICY IF EXISTS "subjects_admin_all" ON public.subjects;
 CREATE POLICY "subjects_select_all" ON public.subjects FOR SELECT USING (TRUE);
 CREATE POLICY "subjects_admin_all" ON public.subjects FOR ALL USING (
   EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
 );
 
 -- Student Subjects policies
+DROP POLICY IF EXISTS "student_subjects_own" ON public.student_subjects;
 CREATE POLICY "student_subjects_own" ON public.student_subjects FOR ALL USING (auth.uid() = user_id);
 
 -- Assessments policies
+DROP POLICY IF EXISTS "assessments_own" ON public.assessments;
 CREATE POLICY "assessments_own" ON public.assessments FOR ALL USING (auth.uid() = user_id);
 
 -- Marks policies
+DROP POLICY IF EXISTS "marks_own" ON public.marks;
 CREATE POLICY "marks_own" ON public.marks FOR ALL USING (auth.uid() = user_id);
 
 -- Notes policies (own notes OR public shared notes)
+DROP POLICY IF EXISTS "notes_own" ON public.notes;
 CREATE POLICY "notes_own" ON public.notes FOR ALL USING (auth.uid() = user_id OR is_public = TRUE);
 
 -- Notifications policies
+DROP POLICY IF EXISTS "notifications_own" ON public.notifications;
 CREATE POLICY "notifications_own" ON public.notifications FOR ALL USING (auth.uid() = user_id);
 
 -- Study Sessions policies
+DROP POLICY IF EXISTS "study_sessions_own" ON public.study_sessions;
 CREATE POLICY "study_sessions_own" ON public.study_sessions FOR ALL USING (auth.uid() = user_id);
 
 -- Flashcards policies
+DROP POLICY IF EXISTS "flashcards_own" ON public.flashcards;
 CREATE POLICY "flashcards_own" ON public.flashcards FOR ALL USING (auth.uid() = user_id);
 
 -- Quizzes policies
+DROP POLICY IF EXISTS "quizzes_own" ON public.quizzes;
 CREATE POLICY "quizzes_own" ON public.quizzes FOR ALL USING (auth.uid() = user_id);
 
 -- Settings policies
+DROP POLICY IF EXISTS "settings_own" ON public.settings;
 CREATE POLICY "settings_own" ON public.settings FOR ALL USING (auth.uid() = user_id);
 
 -- ============================================================
