@@ -48,6 +48,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [registeredUserId, setRegisteredUserId] = useState<string>('');
 
   // Step 1 states (User creation / verification)
   const [fullName, setFullName] = useState('');
@@ -167,6 +168,8 @@ export default function OnboardingPage() {
 
       const userId = data.user?.id;
       if (userId) {
+        setRegisteredUserId(userId);
+        
         // Force-update the public profile fields
         const { error: profileError } = await supabase
           .from('users')
@@ -179,6 +182,9 @@ export default function OnboardingPage() {
         if (profileError) {
           console.error('Profile update error:', profileError);
         }
+
+        // Try automatic sign in immediately so session is active
+        await supabase.auth.signInWithPassword({ email, password });
       }
 
       await refreshProfile();
@@ -201,8 +207,13 @@ export default function OnboardingPage() {
     setErrorMsg('');
 
     try {
-      const currentUserId = user?.id || profile?.id;
-      if (!currentUserId) throw new Error('No user session.');
+      const currentUserId = user?.id || profile?.id || registeredUserId;
+      if (!currentUserId) {
+        setErrorMsg('Please complete Step 1 to create your student account first.');
+        setStep(1);
+        setLoading(false);
+        return;
+      }
 
       // 1. Delete any existing student subject joins
       await supabase
