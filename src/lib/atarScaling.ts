@@ -10,7 +10,11 @@ export interface HscCourse {
 
 export interface SelectedCourse {
   courseId: string;
-  rawMark: number; // 0 to 100
+  rawMark: number; // Single mode overall mark (0 to 100)
+  schoolMark?: number; // Internal school assessment mark (0 to 100)
+  examMark?: number; // External HSC exam mark (0 to 100)
+  schoolRankPercentile?: number; // Top cohort percentile (e.g. 85 = Top 15% rank)
+  useModerationMode?: boolean; // Toggle 50% School + 50% Exam moderation mode
 }
 
 // 35+ Popular NSW HSC Courses with UAC Scaled Mark Distributions (per unit out of 50)
@@ -493,17 +497,33 @@ export const HSC_COURSES: HscCourse[] = [
   },
 ];
 
-// Helper: Linear Interpolation for Raw -> Scaled Mark (0-50 per unit)
-export function getScaledMarkPerUnit(course: HscCourse, rawMark: number): number {
+// Calculate effective course composite mark considering Girraween selective school moderation
+export function getEffectiveCourseMark(sc: SelectedCourse, selectiveSchoolUplift: number = 4): number {
+  if (sc.useModerationMode) {
+    const internalSchoolMark = sc.schoolMark ?? sc.rawMark;
+    const externalExamMark = sc.examMark ?? sc.rawMark;
+    const rankBonus = ((sc.schoolRankPercentile ?? 80) / 100) * selectiveSchoolUplift;
+    
+    // Moderated Assessment Mark = School Mark aligned with Girraween cohort strength
+    const moderatedSchoolMark = Math.min(100, Math.max(0, internalSchoolMark + rankBonus));
+    
+    // 50% Moderated School Assessment + 50% External HSC Exam
+    return Math.round((0.5 * moderatedSchoolMark + 0.5 * externalExamMark) * 10) / 10;
+  }
+  return sc.rawMark;
+}
+
+// Helper: Linear Interpolation for Composite Mark -> Scaled Mark (0-50 per unit)
+export function getScaledMarkPerUnit(course: HscCourse, mark: number): number {
   const points = course.scalingPoints;
-  if (rawMark <= points[0].raw) return points[0].scaledPerUnit;
-  if (rawMark >= points[points.length - 1].raw) return points[points.length - 1].scaledPerUnit;
+  if (mark <= points[0].raw) return points[0].scaledPerUnit;
+  if (mark >= points[points.length - 1].raw) return points[points.length - 1].scaledPerUnit;
 
   for (let i = 0; i < points.length - 1; i++) {
     const p1 = points[i];
     const p2 = points[i + 1];
-    if (rawMark >= p1.raw && rawMark <= p2.raw) {
-      const ratio = (rawMark - p1.raw) / (p2.raw - p1.raw);
+    if (mark >= p1.raw && mark <= p2.raw) {
+      const ratio = (mark - p1.raw) / (p2.raw - p1.raw);
       return p1.scaledPerUnit + ratio * (p2.scaledPerUnit - p1.scaledPerUnit);
     }
   }
@@ -547,7 +567,6 @@ export function validateHscRules(selectedCourses: SelectedCourse[]): RuleValidat
   let catBUnits = 0;
 
   courseMap.forEach((c) => {
-    // Handling Ext 2 maths unit override rule
     let units = c.units;
     if (c.id === 'math_ext2') {
       units = 2;
@@ -620,12 +639,16 @@ export interface UnitContribution {
   courseName: string;
   unitNumber: number; // 1 or 2
   scaledScorePerUnit: number;
+  compositeMark: number;
   isIncludedInBest10: boolean;
   isEnglish: boolean;
 }
 
 // Calculate Best 10 Units Aggregate Score
-export function calculateBest10UnitsAggregate(selectedCourses: SelectedCourse[]): {
+export function calculateBest10UnitsAggregate(
+  selectedCourses: SelectedCourse[],
+  selectiveSchoolUplift: number = 4
+): {
   aggregate: number;
   atar: number;
   unitBreakdown: UnitContribution[];
@@ -636,8 +659,9 @@ export function calculateBest10UnitsAggregate(selectedCourses: SelectedCourse[])
     const course = HSC_COURSES.find((c) => c.id === sc.courseId);
     if (!course) return;
 
-    // Determine effective units & scaled mark per unit
-    const scaledPerUnit = getScaledMarkPerUnit(course, sc.rawMark);
+    // Calculate effective 50/50 composite mark
+    const compositeMark = getEffectiveCourseMark(sc, selectiveSchoolUplift);
+    const scaledPerUnit = getScaledMarkPerUnit(course, compositeMark);
 
     // If Maths Ext 2 is selected with Ext 1: Ext 1 counts as 2u + Ext 2 counts as 2u
     let effectiveUnits = course.units;
@@ -651,6 +675,7 @@ export function calculateBest10UnitsAggregate(selectedCourses: SelectedCourse[])
         courseName: course.name,
         unitNumber: u,
         scaledScorePerUnit: scaledPerUnit,
+        compositeMark: compositeMark,
         isIncludedInBest10: false,
         isEnglish: course.category === 'English',
       });
