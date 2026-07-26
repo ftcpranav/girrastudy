@@ -19,26 +19,26 @@ import confetti from 'canvas-confetti';
 import { Subject } from '@/lib/types';
 
 const FALLBACK_SUBJECTS: Subject[] = [
-  { id: 'sub-eng-adv', name: 'English Advanced', code: 'ENG_ADV', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-eng-std', name: 'English Standard', code: 'ENG_STD', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-eng-ext1', name: 'English Extension 1', code: 'ENG_EXT1', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-eng-ext2', name: 'English Extension 2', code: 'ENG_EXT2', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-math-adv', name: 'Mathematics Advanced', code: 'MATH_ADV', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-math-ext1', name: 'Mathematics Extension 1', code: 'MATH_EXT1', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-math-ext2', name: 'Mathematics Extension 2', code: 'MATH_EXT2', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-chem', name: 'Chemistry', code: 'CHEM', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-phys', name: 'Physics', code: 'PHYS', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-biol', name: 'Biology', code: 'BIOL', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-econ', name: 'Economics', code: 'ECON', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-buss', name: 'Business Studies', code: 'BUSS', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-legl', name: 'Legal Studies', code: 'LEGL', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-hist-mod', name: 'Modern History', code: 'HIST_MOD', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-hist-anc', name: 'Ancient History', code: 'HIST_ANC', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-soft-eng', name: 'Software Engineering', code: 'SOFT_ENG', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-eng-stud', name: 'Engineering Studies', code: 'ENG_STUD', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-ipt', name: 'Information Processes & Technology', code: 'IPT', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-pdhpe', name: 'PDHPE', code: 'PDHPE', is_active: true, created_at: new Date().toISOString() },
-  { id: 'sub-sor', name: 'Studies of Religion', code: 'SOR', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111101', name: 'English Advanced', code: 'ENG_ADV', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111102', name: 'English Standard', code: 'ENG_STD', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111103', name: 'English Extension 1', code: 'ENG_EXT1', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111104', name: 'English Extension 2', code: 'ENG_EXT2', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111105', name: 'Mathematics Advanced', code: 'MATH_ADV', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111106', name: 'Mathematics Extension 1', code: 'MATH_EXT1', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111107', name: 'Mathematics Extension 2', code: 'MATH_EXT2', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111108', name: 'Chemistry', code: 'CHEM', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111109', name: 'Physics', code: 'PHYS', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111110', name: 'Biology', code: 'BIOL', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111111', name: 'Economics', code: 'ECON', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111112', name: 'Business Studies', code: 'BUSS', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111113', name: 'Legal Studies', code: 'LEGL', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111114', name: 'Modern History', code: 'HIST_MOD', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111115', name: 'Ancient History', code: 'HIST_ANC', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111116', name: 'Software Engineering', code: 'SOFT_ENG', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111117', name: 'Engineering Studies', code: 'ENG_STUD', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111118', name: 'Information Processes and Technology', code: 'IPT', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111119', name: 'PDHPE', code: 'PDHPE', is_active: true, created_at: new Date().toISOString() },
+  { id: '11111111-1111-4111-a111-111111111120', name: 'Studies of Religion', code: 'SOR', is_active: true, created_at: new Date().toISOString() },
 ];
 
 export default function OnboardingPage() {
@@ -203,8 +203,10 @@ export default function OnboardingPage() {
           }
 
           // If Supabase Auth is rate-limited or unconfirmed email blocks sign-in,
-          // generate a deterministic student session so onboarding is NEVER blocked!
-          const fallbackUserId = `user_${btoa(email).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)}`;
+          // generate a valid PostgreSQL UUID so database insertions NEVER fail!
+          const fallbackUserId = typeof crypto !== 'undefined' && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
           setRegisteredUserId(fallbackUserId);
           
           await supabase.from('users').upsert({
@@ -272,6 +274,15 @@ export default function OnboardingPage() {
         return;
       }
 
+      // Ensure user profile row exists before inserting student subjects
+      await supabase.from('users').upsert({
+        id: currentUserId,
+        email: email || 'student@girrastudy.com',
+        full_name: fullName || 'Student',
+        year_group: yearGroup || 'Year 12',
+        role: 'student',
+      });
+
       // 1. Delete any existing student subject joins
       await supabase
         .from('student_subjects')
@@ -295,6 +306,20 @@ export default function OnboardingPage() {
         return subIdOrCode;
       };
 
+      // Ensure selected subjects exist in DB table to satisfy foreign key
+      for (const subId of selectedSubjects) {
+        const localSub = subjectsList.find((s) => s.id === subId);
+        if (localSub) {
+          const targetId = resolveSubjectId(subId);
+          await supabase.from('subjects').upsert({
+            id: targetId,
+            name: localSub.name,
+            code: localSub.code,
+            is_active: true,
+          });
+        }
+      }
+
       // 2. Insert selected subjects
       const subjectInserts = selectedSubjects.map((subId, index) => ({
         user_id: currentUserId,
@@ -309,7 +334,7 @@ export default function OnboardingPage() {
       if (error) {
         setErrorMsg(error.message);
       } else {
-        await refreshProfile();
+        await refreshProfile(currentUserId);
         setStep(3);
       }
     } catch (err: any) {
