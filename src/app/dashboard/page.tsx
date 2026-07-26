@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import confetti from 'canvas-confetti';
 import {
   Calendar,
   CheckSquare,
@@ -18,6 +19,8 @@ import {
   PlayCircle,
   Calculator,
   Timer,
+  Flame,
+  Trophy,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import AddAssessmentModal from '@/components/dashboard/AddAssessmentModal';
@@ -38,6 +41,23 @@ export default function Dashboard() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [recentNotes, setRecentNotes] = useState<Note[]>([]);
   const [marks, setMarks] = useState<Mark[]>([]);
+
+  // Calculate days until HSC Exams (assuming Oct 15)
+  const getDaysUntilHsc = () => {
+    const hscDate = new Date(new Date().getFullYear(), 9, 15);
+    const now = new Date();
+    const diffTime = hscDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 80;
+  };
+
+  const triggerConfetti = () => {
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
+  };
 
   const fetchData = async () => {
     if (!user) return;
@@ -107,10 +127,7 @@ export default function Dashboard() {
 
   // Mark averages calculations
   const calculateSubjectMetrics = (subjId: string) => {
-    // Enrolled assessments count
     const subAssessments = assessments.filter((a) => a.subject_id === subjId);
-    
-    // Weighted Average Calculation
     const subMarks = marks.filter((m) => m.subject_id === subjId);
     let weightedMarkSum = 0;
     let totalWeight = 0;
@@ -121,8 +138,6 @@ export default function Dashboard() {
     });
 
     const average = totalWeight > 0 ? (weightedMarkSum / totalWeight).toFixed(1) : null;
-
-    // Next Due Assessment
     const upcoming = subAssessments
       .filter((a) => a.status !== 'Completed' && new Date(a.due_date) >= new Date())
       .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
@@ -136,7 +151,6 @@ export default function Dashboard() {
     };
   };
 
-  // Color progress codes based on mark ranges
   const getProgressColor = (avg: number) => {
     if (avg < 50) return 'bg-red-500';
     if (avg < 65) return 'bg-orange-500';
@@ -145,7 +159,6 @@ export default function Dashboard() {
     return 'bg-purple-500';
   };
 
-  // Overall Weighted average across all subjects
   const calculateOverallAverage = () => {
     let weightedMarkSum = 0;
     let totalWeight = 0;
@@ -158,7 +171,6 @@ export default function Dashboard() {
     return totalWeight > 0 ? (weightedMarkSum / totalWeight).toFixed(1) : '--';
   };
 
-  // Get note icons based on format
   const getNoteIcon = (type: string) => {
     switch (type) {
       case 'google_doc':
@@ -177,22 +189,20 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      {/* Welcome & Dashboard Banner */}
+      {/* Welcome & Live Countdown Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100 tracking-wide">
-            Welcome, {profile?.full_name || 'HSC Student'}
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            NSW {profile?.year_group || 'HSC'} Study Portal • Target Focus Areas:{' '}
-            {profile?.preferences_json?.study_focus?.map((f: string) => (
-              <span
-                key={f}
-                className="inline-block bg-indigo-950/40 border border-indigo-500/10 text-[10px] uppercase font-bold text-violet-400 px-2 py-0.5 rounded-full mr-1.5"
-              >
-                {f}
-              </span>
-            )) || <span className="text-slate-500 italic">None selected</span>}
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100 tracking-wide">
+              Welcome, {profile?.full_name || 'HSC Student'}
+            </h1>
+            <span className="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-400 font-bold text-xs flex items-center gap-1">
+              <Flame className="h-3.5 w-3.5 fill-amber-400" />
+              <span>5 Day Streak</span>
+            </span>
+          </div>
+          <p className="text-slate-400 text-sm">
+            Girraween High School • <strong className="text-violet-300 font-mono">{getDaysUntilHsc()} Days</strong> until HSC Final Exams 🎓
           </p>
         </div>
 

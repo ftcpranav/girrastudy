@@ -4,14 +4,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Bell, Sun, Moon, Search, Loader2, Book, CheckSquare, FileText, X } from 'lucide-react';
+import { Bell, Sun, Moon, Search, Loader2, Book, CheckSquare, FileText, X, Command } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Assessment, Note, Subject } from '@/lib/types';
+import CommandPalette from './CommandPalette';
 
 export default function TopNav() {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
   const router = useRouter();
+
+  // Command palette state
+  const [isCmdKOpen, setIsCmdKOpen] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,6 +31,18 @@ export default function TopNav() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Listen for Cmd+K or Ctrl+K shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCmdKOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Fetch unread notification counts
   useEffect(() => {
@@ -46,7 +62,6 @@ export default function TopNav() {
 
     fetchNotificationsCount();
 
-    // Subscribe to realtime notification changes
     const channel = supabase
       .channel('schema-db-notifications')
       .on(
@@ -93,7 +108,6 @@ export default function TopNav() {
       try {
         const query = searchQuery.trim();
 
-        // 1. Search assessments
         const { data: asts } = await supabase
           .from('assessments')
           .select('*, subject:subjects(*)')
@@ -101,7 +115,6 @@ export default function TopNav() {
           .ilike('name', `%${query}%`)
           .limit(4);
 
-        // 2. Search notes
         const { data: nts } = await supabase
           .from('notes')
           .select('*, subject:subjects(*)')
@@ -109,7 +122,6 @@ export default function TopNav() {
           .or(`title.ilike.%${query}%,topic.ilike.%${query}%`)
           .limit(4);
 
-        // 3. Search enrolled subjects
         const { data: enrolled } = await supabase
           .from('student_subjects')
           .select('*, subject:subjects(*)')
@@ -141,9 +153,9 @@ export default function TopNav() {
 
   return (
     <header className="h-16 border-b border-indigo-950/20 bg-slate-950/40 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between">
-      {/* Search Bar Container */}
-      <div ref={searchRef} className="relative w-full max-w-md">
-        <div className="relative">
+      {/* Search Bar & Cmd+K Trigger Container */}
+      <div ref={searchRef} className="relative w-full max-w-md flex items-center gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
@@ -162,6 +174,19 @@ export default function TopNav() {
             </button>
           )}
         </div>
+
+        {/* Cmd + K Hotkey Badge Button */}
+        <button
+          onClick={() => setIsCmdKOpen(true)}
+          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-indigo-950/30 text-slate-400 hover:text-slate-200 text-xs font-mono transition-colors cursor-pointer"
+          title="Open Command Palette (Cmd + K)"
+        >
+          <Command className="h-3 w-3" />
+          <span>K</span>
+        </button>
+
+        {/* Command Palette Modal */}
+        <CommandPalette isOpen={isCmdKOpen} onClose={() => setIsCmdKOpen(false)} />
 
         {/* Live Search Results Popup */}
         {showResults && (
