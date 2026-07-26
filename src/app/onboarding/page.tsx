@@ -18,6 +18,29 @@ import {
 import confetti from 'canvas-confetti';
 import { Subject } from '@/lib/types';
 
+const FALLBACK_SUBJECTS: Subject[] = [
+  { id: 'sub-eng-adv', name: 'English Advanced', code: 'ENG_ADV', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-eng-std', name: 'English Standard', code: 'ENG_STD', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-eng-ext1', name: 'English Extension 1', code: 'ENG_EXT1', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-eng-ext2', name: 'English Extension 2', code: 'ENG_EXT2', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-math-adv', name: 'Mathematics Advanced', code: 'MATH_ADV', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-math-ext1', name: 'Mathematics Extension 1', code: 'MATH_EXT1', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-math-ext2', name: 'Mathematics Extension 2', code: 'MATH_EXT2', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-chem', name: 'Chemistry', code: 'CHEM', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-phys', name: 'Physics', code: 'PHYS', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-biol', name: 'Biology', code: 'BIOL', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-econ', name: 'Economics', code: 'ECON', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-buss', name: 'Business Studies', code: 'BUSS', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-legl', name: 'Legal Studies', code: 'LEGL', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-hist-mod', name: 'Modern History', code: 'HIST_MOD', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-hist-anc', name: 'Ancient History', code: 'HIST_ANC', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-soft-eng', name: 'Software Engineering', code: 'SOFT_ENG', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-eng-stud', name: 'Engineering Studies', code: 'ENG_STUD', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-ipt', name: 'Information Processes & Technology', code: 'IPT', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-pdhpe', name: 'PDHPE', code: 'PDHPE', is_active: true, created_at: new Date().toISOString() },
+  { id: 'sub-sor', name: 'Studies of Religion', code: 'SOR', is_active: true, created_at: new Date().toISOString() },
+];
+
 export default function OnboardingPage() {
   const { user, profile, enrolledSubjects, refreshProfile } = useAuth();
   const router = useRouter();
@@ -33,7 +56,7 @@ export default function OnboardingPage() {
   const [yearGroup, setYearGroup] = useState<'Year 11' | 'Year 12' | ''>('');
 
   // Step 2 states (Predefined subjects)
-  const [subjectsList, setSubjectsList] = useState<Subject[]>([]);
+  const [subjectsList, setSubjectsList] = useState<Subject[]>(FALLBACK_SUBJECTS);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
   // Step 3 states (Study preferences)
@@ -61,17 +84,23 @@ export default function OnboardingPage() {
     }
   }, [user, profile]);
 
-  // Load subject list from Supabase
+  // Load subject list from Supabase with instant fallback
   useEffect(() => {
     const fetchSubjects = async () => {
-      const { data, error } = await supabase
-        .from('subjects')
-        .select('*')
-        .eq('is_active', true)
-        .order('name', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('subjects')
+          .select('*')
+          .eq('is_active', true)
+          .order('name', { ascending: true });
 
-      if (!error && data) {
-        setSubjectsList(data);
+        if (!error && data && data.length > 0) {
+          setSubjectsList(data);
+        } else {
+          setSubjectsList(FALLBACK_SUBJECTS);
+        }
+      } catch (e) {
+        setSubjectsList(FALLBACK_SUBJECTS);
       }
     };
     fetchSubjects();
@@ -181,13 +210,27 @@ export default function OnboardingPage() {
         .delete()
         .eq('user_id', currentUserId);
 
-      // Harmonious subject color array (shuffled or mapped)
+      // Harmonious subject color array
       const colors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
+
+      // Fetch DB subjects to match real UUIDs if available
+      const { data: dbSubjects } = await supabase.from('subjects').select('id, code, name');
+      
+      const resolveSubjectId = (subIdOrCode: string) => {
+        const localSub = subjectsList.find((s) => s.id === subIdOrCode);
+        if (dbSubjects && dbSubjects.length > 0 && localSub) {
+          const matchedDbSub = dbSubjects.find(
+            (d: any) => d.code === localSub.code || d.name === localSub.name || d.id === localSub.id
+          );
+          if (matchedDbSub) return matchedDbSub.id;
+        }
+        return subIdOrCode;
+      };
 
       // 2. Insert selected subjects
       const subjectInserts = selectedSubjects.map((subId, index) => ({
         user_id: currentUserId,
-        subject_id: subId,
+        subject_id: resolveSubjectId(subId),
         color_hex: colors[index % colors.length],
       }));
 

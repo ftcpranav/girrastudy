@@ -194,7 +194,7 @@ CREATE POLICY "users_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid
 CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id);
 
 -- Subjects policies
-CREATE POLICY "subjects_select_all" ON public.subjects FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "subjects_select_all" ON public.subjects FOR SELECT USING (TRUE);
 CREATE POLICY "subjects_admin_all" ON public.subjects FOR ALL USING (
   EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
 );
