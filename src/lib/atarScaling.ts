@@ -138,7 +138,7 @@ export const HSC_COURSES: HscCourse[] = [
     id: 'math_ext1',
     name: 'Mathematics Extension 1',
     category: 'Mathematics',
-    units: 1, // 1u in Y12, 2u if with Ext 2
+    units: 1,
     scalingPoints: [
       { raw: 50, scaledPerUnit: 27 },
       { raw: 60, scaledPerUnit: 33 },
@@ -152,7 +152,7 @@ export const HSC_COURSES: HscCourse[] = [
     id: 'math_ext2',
     name: 'Mathematics Extension 2',
     category: 'Mathematics',
-    units: 2,
+    units: 1,
     scalingPoints: [
       { raw: 50, scaledPerUnit: 32 },
       { raw: 60, scaledPerUnit: 38 },
@@ -566,10 +566,13 @@ export function validateHscRules(selectedCourses: SelectedCourse[]): RuleValidat
   let scienceUnits = 0;
   let catBUnits = 0;
 
+  const hasMathExt1 = courseMap.has('math_ext1');
+  const hasMathExt2 = courseMap.has('math_ext2');
+
   courseMap.forEach((c) => {
     let units = c.units;
-    if (c.id === 'math_ext2') {
-      units = 2;
+    if ((c.id === 'math_ext1' || c.id === 'math_ext2') && hasMathExt1 && hasMathExt2) {
+      units = 2; // Ext 1 & Ext 2 both count as 2 units each in 4U Maths package
     }
     totalUnits += units;
 
@@ -592,8 +595,6 @@ export function validateHscRules(selectedCourses: SelectedCourse[]): RuleValidat
   const hasMathAdv = courseMap.has('math_adv');
   const hasMathStd1 = courseMap.has('math_std1');
   const hasMathStd2 = courseMap.has('math_std2');
-  const hasMathExt1 = courseMap.has('math_ext1');
-  const hasMathExt2 = courseMap.has('math_ext2');
 
   if ((hasMathStd1 || hasMathStd2) && hasMathAdv) {
     errors.push('Cannot take Mathematics Standard and Mathematics Advanced simultaneously.');
@@ -663,10 +664,11 @@ export function calculateBest10UnitsAggregate(
     const compositeMark = getEffectiveCourseMark(sc, selectiveSchoolUplift);
     const scaledPerUnit = getScaledMarkPerUnit(course, compositeMark);
 
-    // If Maths Ext 2 is selected with Ext 1: Ext 1 counts as 2u + Ext 2 counts as 2u
+    // If Maths Ext 2 & Ext 1 are both selected: Ext 1 counts as 2u + Ext 2 counts as 2u
     let effectiveUnits = course.units;
-    if (course.id === 'math_ext1' && selectedCourses.some((item) => item.courseId === 'math_ext2')) {
-      effectiveUnits = 2; // Ext 1 is 2 units when taken with Ext 2
+    const is4uMaths = selectedCourses.some((item) => item.courseId === 'math_ext2') && selectedCourses.some((item) => item.courseId === 'math_ext1');
+    if ((course.id === 'math_ext1' || course.id === 'math_ext2') && is4uMaths) {
+      effectiveUnits = 2; // Ext 1 & Ext 2 are 2 units each when 4U Maths is taken
     }
 
     for (let u = 1; u <= effectiveUnits; u++) {

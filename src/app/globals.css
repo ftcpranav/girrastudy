@@ -39,11 +39,11 @@
 }
 
 /* Base Theme Variables: Light Mode (Crisp White + Emerald & Amber/Yellow accent) */
-:root {
+:root, .light {
   --background: #ffffff;
   --foreground: #0f172a;
 
-  --card: rgba(255, 255, 255, 0.9);
+  --card: rgba(255, 255, 255, 0.95);
   --card-foreground: #0f172a;
 
   --muted: #f1f5f9;
@@ -58,7 +58,7 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: rgba(16, 185, 129, 0.18);
+  --border: rgba(16, 185, 129, 0.2);
   --input: #e2e8f0;
   --ring: #10b981;
 
@@ -66,11 +66,11 @@
 }
 
 /* Dark Mode: Deep Emerald/Slate Background + Emerald & Gold/Yellow accent */
-.dark, :root:not(.light) {
+.dark {
   --background: #070e17;
   --foreground: #f8fafc;
 
-  --card: rgba(10, 22, 20, 0.55);
+  --card: rgba(10, 22, 20, 0.75);
   --card-foreground: #f8fafc;
 
   --muted: #0f172a;
@@ -85,8 +85,8 @@
   --destructive: #f87171;
   --destructive-foreground: #ffffff;
 
-  --border: rgba(16, 185, 129, 0.2);
-  --input: rgba(16, 185, 129, 0.12);
+  --border: rgba(16, 185, 129, 0.25);
+  --input: rgba(16, 185, 129, 0.15);
   --ring: #10b981;
 }
 
