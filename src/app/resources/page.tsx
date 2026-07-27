@@ -181,24 +181,74 @@ export default function ResourcesPage() {
 
   // ── Past Papers list ───────────────────────────────────────
   const pastPapersList: PastPaperResource[] = [
-    { id: 'pp1', subjectCode: 'MATH_ADV', subjectName: 'Mathematics Advanced', yearGroup: 'Year 12', title: '2024 NESA HSC Mathematics Advanced Exam & Solutions', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp2', subjectCode: 'MATH_ADV', subjectName: 'Mathematics Advanced', yearGroup: 'Year 11', title: 'Year 11 Preliminary Mathematics Advanced Yearly Exam', type: 'Year 11 Prelim', url: 'https://www.thsc.online/hsc/maths_advanced/' },
-    { id: 'pp3', subjectCode: 'MATH_EXT1', subjectName: 'Mathematics Extension 1', yearGroup: 'Year 12', title: 'Girraween & Selective High Schools Math Ext 1 Trial Papers', type: 'Selective Trial Paper', url: 'https://www.thsc.online/hsc/maths_extension_1/' },
-    { id: 'pp4', subjectCode: 'PHYS', subjectName: 'Physics', yearGroup: 'Year 12', title: '2023 NESA HSC Physics Examination & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp5', subjectCode: 'PHYS', subjectName: 'Physics', yearGroup: 'Year 11', title: 'Year 11 Physics Kinematics & Dynamics Progress Test', type: 'Year 11 Prelim', url: 'https://www.thsc.online/hsc/physics/' },
-    { id: 'pp6', subjectCode: 'CHEM', subjectName: 'Chemistry', yearGroup: 'Year 12', title: '2024 NESA HSC Chemistry Exam & Solutions Data Sheet', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp7', subjectCode: 'CHEM', subjectName: 'Chemistry', yearGroup: 'Year 11', title: 'Year 11 Chemistry Structure & Atomic Theory Exam', type: 'Year 11 Prelim', url: 'https://www.thsc.online/hsc/chemistry/' },
-    { id: 'pp8', subjectCode: 'ENG_ADV', subjectName: 'English Advanced', yearGroup: 'Year 12', title: 'NESA HSC English Advanced Paper 1 (Texts and Human Experiences)', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp9', subjectCode: 'ENG_ADV', subjectName: 'English Advanced', yearGroup: 'Year 11', title: 'Year 11 English Advanced Reading Task & Critical Analysis', type: 'Year 11 Prelim', url: 'https://www.thsc.online/hsc/english_advanced/' },
-    { id: 'pp10', subjectCode: 'ECON', subjectName: 'Economics', yearGroup: 'Year 12', title: '2024 NESA HSC Economics Exam & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp11', subjectCode: 'BIOL', subjectName: 'Biology', yearGroup: 'Year 12', title: '2024 NESA HSC Biology Examination & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp12', subjectCode: 'MATH_EXT2', subjectName: 'Mathematics Extension 2', yearGroup: 'Year 12', title: '2024 NESA HSC Mathematics Extension 2 Exam & Solutions', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp13', subjectCode: 'BUSS', subjectName: 'Business Studies', yearGroup: 'Year 12', title: '2024 NESA HSC Business Studies Exam & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp14', subjectCode: 'LEGL', subjectName: 'Legal Studies', yearGroup: 'Year 12', title: '2024 NESA HSC Legal Studies Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp15', subjectCode: 'HIST_MOD', subjectName: 'Modern History', yearGroup: 'Year 12', title: '2024 NESA HSC Modern History Exam & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp16', subjectCode: 'ENG_EXT1', subjectName: 'English Extension 1', yearGroup: 'Year 12', title: '2024 NESA HSC English Extension 1 Exam', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp17', subjectCode: 'SOFT_ENG', subjectName: 'Software Engineering', yearGroup: 'Year 12', title: '2024 NESA HSC Software Engineering Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
-    { id: 'pp18', subjectCode: 'ENG_STD', subjectName: 'English Standard', yearGroup: 'Year 12', title: 'NESA HSC English Standard Paper 1 & 2', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/nesa/hsc/hsc-exam-papers' },
+    // MATHS ADVANCED
+    { id: 'pp1', subjectCode: 'MATH_ADV', subjectName: 'Mathematics Advanced', yearGroup: 'Year 12', title: 'Official NESA HSC Mathematics Advanced Exam & Solutions Archive', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp2', subjectCode: 'MATH_ADV', subjectName: 'Mathematics Advanced', yearGroup: 'Year 12', title: 'THSC Online Mathematics Advanced Trial Exam Papers & Worked Solutions', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+    { id: 'pp3', subjectCode: 'MATH_ADV', subjectName: 'Mathematics Advanced', yearGroup: 'Year 11', title: 'AceHSC Mathematics Advanced Year 11 & 12 Practice Bank', type: 'Year 11 Prelim', url: 'https://www.acehsc.net/library/' },
+
+    // MATHS EXTENSION 1
+    { id: 'pp4', subjectCode: 'MATH_EXT1', subjectName: 'Mathematics Extension 1', yearGroup: 'Year 12', title: 'Official NESA HSC Mathematics Extension 1 Exam & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp5', subjectCode: 'MATH_EXT1', subjectName: 'Mathematics Extension 1', yearGroup: 'Year 12', title: 'THSC Online Maths Ext 1 Trial Papers (Girraween & Selective High)', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+
+    // MATHS EXTENSION 2
+    { id: 'pp6', subjectCode: 'MATH_EXT2', subjectName: 'Mathematics Extension 2', yearGroup: 'Year 12', title: 'Official NESA HSC Mathematics Extension 2 Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp7', subjectCode: 'MATH_EXT2', subjectName: 'Mathematics Extension 2', yearGroup: 'Year 12', title: 'THSC Online Maths Ext 2 Past Papers & Full Solutions', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+
+    // PHYSICS
+    { id: 'pp8', subjectCode: 'PHYS', subjectName: 'Physics', yearGroup: 'Year 12', title: 'Official NESA HSC Physics Exam Papers & Marker Feedback', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp9', subjectCode: 'PHYS', subjectName: 'Physics', yearGroup: 'Year 12', title: 'THSC Online Physics Trial Papers with Worked Answers', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+    { id: 'pp10', subjectCode: 'PHYS', subjectName: 'Physics', yearGroup: 'Year 11', title: 'AceHSC Physics Year 11 & 12 Past Paper Bank', type: 'Year 11 Prelim', url: 'https://www.acehsc.net/library/' },
+
+    // CHEMISTRY
+    { id: 'pp11', subjectCode: 'CHEM', subjectName: 'Chemistry', yearGroup: 'Year 12', title: 'Official NESA HSC Chemistry Exam Papers & Data Sheets', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp12', subjectCode: 'CHEM', subjectName: 'Chemistry', yearGroup: 'Year 12', title: 'THSC Online Chemistry Trial Papers Archive', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+    { id: 'pp13', subjectCode: 'CHEM', subjectName: 'Chemistry', yearGroup: 'Year 11', title: 'AceHSC Chemistry Practice Exams & Topic Tests', type: 'Year 11 Prelim', url: 'https://www.acehsc.net/library/' },
+
+    // BIOLOGY
+    { id: 'pp14', subjectCode: 'BIOL', subjectName: 'Biology', yearGroup: 'Year 12', title: 'Official NESA HSC Biology Examination & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp15', subjectCode: 'BIOL', subjectName: 'Biology', yearGroup: 'Year 12', title: 'THSC Online Biology Past Trial Papers & Worked Solutions', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+
+    // ENGLISH ADVANCED
+    { id: 'pp16', subjectCode: 'ENG_ADV', subjectName: 'English Advanced', yearGroup: 'Year 12', title: 'Official NESA HSC English Advanced Paper 1 & Paper 2', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp17', subjectCode: 'ENG_ADV', subjectName: 'English Advanced', yearGroup: 'Year 12', title: 'THSC Online English Advanced Trial Papers & Exemplars', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+
+    // ENGLISH STANDARD
+    { id: 'pp18', subjectCode: 'ENG_STD', subjectName: 'English Standard', yearGroup: 'Year 12', title: 'Official NESA HSC English Standard Paper 1 & Paper 2', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // ENGLISH EXTENSION 1
+    { id: 'pp19', subjectCode: 'ENG_EXT1', subjectName: 'English Extension 1', yearGroup: 'Year 12', title: 'Official NESA HSC English Extension 1 Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // ECONOMICS
+    { id: 'pp20', subjectCode: 'ECON', subjectName: 'Economics', yearGroup: 'Year 12', title: 'Official NESA HSC Economics Exam Papers & Solutions', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp21', subjectCode: 'ECON', subjectName: 'Economics', yearGroup: 'Year 12', title: 'THSC Online Economics Trial Exam Papers Archive', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+
+    // BUSINESS STUDIES
+    { id: 'pp22', subjectCode: 'BUSS', subjectName: 'Business Studies', yearGroup: 'Year 12', title: 'Official NESA HSC Business Studies Exam & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+    { id: 'pp23', subjectCode: 'BUSS', subjectName: 'Business Studies', yearGroup: 'Year 12', title: 'THSC Online Business Studies Practice Trial Papers', type: 'Selective Trial Paper', url: 'https://thsconline.github.io/s/' },
+
+    // LEGAL STUDIES
+    { id: 'pp24', subjectCode: 'LEGL', subjectName: 'Legal Studies', yearGroup: 'Year 12', title: 'Official NESA HSC Legal Studies Examination & Marking Rubric', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // MODERN HISTORY
+    { id: 'pp25', subjectCode: 'HIST_MOD', subjectName: 'Modern History', yearGroup: 'Year 12', title: 'Official NESA HSC Modern History Exam & Source Papers', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // ANCIENT HISTORY
+    { id: 'pp26', subjectCode: 'HIST_ANC', subjectName: 'Ancient History', yearGroup: 'Year 12', title: 'Official NESA HSC Ancient History Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // SOFTWARE ENGINEERING
+    { id: 'pp27', subjectCode: 'SOFT_ENG', subjectName: 'Software Engineering', yearGroup: 'Year 12', title: 'Official NESA HSC Software Engineering Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // ENGINEERING STUDIES
+    { id: 'pp28', subjectCode: 'ENG_STUD', subjectName: 'Engineering Studies', yearGroup: 'Year 12', title: 'Official NESA HSC Engineering Studies Exam Papers', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // IPT
+    { id: 'pp29', subjectCode: 'IPT', subjectName: 'Information Processes & Tech', yearGroup: 'Year 12', title: 'Official NESA HSC IPT Examination Archive', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // PDHPE
+    { id: 'pp30', subjectCode: 'PDHPE', subjectName: 'PDHPE', yearGroup: 'Year 12', title: 'Official NESA HSC PDHPE Examination & Marking Guidelines', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
+
+    // STUDIES OF RELIGION
+    { id: 'pp31', subjectCode: 'SOR', subjectName: 'Studies of Religion', yearGroup: 'Year 12', title: 'Official NESA HSC Studies of Religion Examination', type: 'NESA HSC Exam', url: 'https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers' },
   ];
 
   // Filter past papers to enrolled subjects only
