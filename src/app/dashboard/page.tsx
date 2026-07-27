@@ -275,8 +275,8 @@ export default function Dashboard() {
             <BookOpen className="h-4.5 w-4.5" />
           </div>
           <div className="text-left">
-            <span className="text-xs block font-bold">Vault & Quiz</span>
-            <span className="text-[10px] text-amber-400/80 font-normal">Past papers</span>
+            <span className="text-xs block font-bold">Resource Vault</span>
+            <span className="text-[10px] text-amber-400/80 font-normal">Past papers & syllabus</span>
           </div>
         </button>
 

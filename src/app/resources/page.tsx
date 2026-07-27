@@ -8,7 +8,6 @@ import { SYLLABUS_DATA } from '@/lib/syllabusData';
 import {
   BookOpen,
   ExternalLink,
-  RotateCw,
   Award,
   FileText,
   Filter,
@@ -21,7 +20,7 @@ import {
   Search,
 } from 'lucide-react';
 
-type TabType = 'past_papers' | 'syllabus' | 'flashcards';
+type TabType = 'past_papers' | 'syllabus';
 type DotStatus = 'red' | 'yellow' | 'green';
 
 // Key used to store progress in preferences_json
@@ -37,15 +36,6 @@ interface PastPaperResource {
   url: string;
 }
 
-interface Flashcard {
-  id: string;
-  subjectCode: string;
-  subjectName: string;
-  topic: string;
-  question: string;
-  answer: string;
-}
-
 export default function ResourcesPage() {
   const { user, enrolledSubjects, profile, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('past_papers');
@@ -59,10 +49,6 @@ export default function ResourcesPage() {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
   // Search filter
   const [syllabusSearch, setSyllabusSearch] = useState('');
-
-  // Flashcard state
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
 
   // ── Load saved status from profile preferences_json ──────
   useEffect(() => {
@@ -260,24 +246,6 @@ export default function ResourcesPage() {
     return sub?.subject?.code === pp.subjectCode;
   });
 
-  // ── Flashcards (only for enrolled subjects) ───────────────
-  const allFlashcards: Flashcard[] = [
-    { id: 'f1', subjectCode: 'CHEM', subjectName: 'Chemistry', topic: 'Equilibrium', question: 'What happens to equilibrium in an exothermic reaction when temperature increases?', answer: "According to Le Chatelier's principle, equilibrium shifts in the endothermic direction (reverse reaction) to absorb excess heat." },
-    { id: 'f2', subjectCode: 'PHYS', subjectName: 'Physics', topic: 'Special Relativity', question: "State Einstein's two postulates of Special Relativity.", answer: "1. The laws of physics are the same in all inertial reference frames.\n2. The speed of light (c) is constant for all observers regardless of motion of source or observer." },
-    { id: 'f3', subjectCode: 'MATH_EXT1', subjectName: 'Maths Ext 1', topic: 'Combinatorics', question: 'How many ways can n distinct objects be arranged in a circle?', answer: '(n - 1)! because one rotation produces equivalent arrangements.' },
-    { id: 'f4', subjectCode: 'ECON', subjectName: 'Economics', topic: 'Balance of Payments', question: 'What are the two main accounts in the Balance of Payments?', answer: '1. Current Account (Goods, Services, Primary & Secondary Income)\n2. Capital & Financial Account (Direct, Portfolio, Derivatives & Reserve Assets)' },
-    { id: 'f5', subjectCode: 'MATH_ADV', subjectName: 'Maths Advanced', topic: 'Calculus', question: 'State the Fundamental Theorem of Calculus.', answer: 'If F is an antiderivative of f on [a, b], then the integral from a to b of f(x)dx = F(b) - F(a).' },
-    { id: 'f6', subjectCode: 'BIOL', subjectName: 'Biology', topic: 'Genetics', question: 'What is the Central Dogma of Molecular Biology?', answer: 'DNA is transcribed to mRNA which is translated into protein: DNA → RNA → Protein.' },
-    { id: 'f7', subjectCode: 'LEGL', subjectName: 'Legal Studies', topic: 'Crime', question: 'What are the two elements required to establish criminal liability?', answer: "1. Actus reus (the guilty act)\n2. Mens rea (the guilty mind/intent)" },
-    { id: 'f8', subjectCode: 'BUSS', subjectName: 'Business Studies', topic: 'Finance', question: 'What does the current ratio measure and what is considered healthy?', answer: 'Current Ratio = Current Assets / Current Liabilities. A ratio of 2:1 is generally considered healthy, indicating the business can cover short-term obligations.' },
-    { id: 'f9', subjectCode: 'MATH_EXT2', subjectName: 'Maths Ext 2', topic: 'Complex Numbers', question: "State de Moivre's theorem.", answer: 'For any real n: (cos θ + i sin θ)^n = cos(nθ) + i sin(nθ). Equivalently, (r·e^(iθ))^n = r^n · e^(inθ).' },
-    { id: 'f10', subjectCode: 'ENG_ADV', subjectName: 'English Advanced', topic: 'Critical Thinking', question: 'What is the difference between a theme and a motif?', answer: 'A theme is the central message or idea of a text (e.g. "redemption"). A motif is a recurring symbolic element (image, sound, colour) that reinforces the theme.' },
-  ];
-
-  const enrolledFlashcards = allFlashcards.filter((f) => enrolledCodes.includes(f.subjectCode));
-  const displayCards = enrolledFlashcards.length > 0 ? enrolledFlashcards : allFlashcards;
-  const currentCard = displayCards[currentCardIndex % displayCards.length];
-
   // ── Render subject name from code ─────────────────────────
   const subjectNameFromCode = (code: string) => {
     const found = enrolledSubjects.find((s) => s.subject?.code === code);
@@ -298,7 +266,7 @@ export default function ResourcesPage() {
             </h1>
           </div>
           <p className="text-slate-400 text-sm">
-            Past papers, syllabus dot-point tracker and flashcards — filtered to your enrolled subjects.
+            Past papers and syllabus dot-point confidence tracker — filtered to your enrolled subjects.
           </p>
         </div>
 
@@ -307,7 +275,6 @@ export default function ResourcesPage() {
           {([
             { id: 'past_papers', label: 'Past Papers' },
             { id: 'syllabus', label: 'Syllabus Tracker' },
-            { id: 'flashcards', label: 'Flashcards' },
           ] as { id: TabType; label: string }[]).map((tab) => (
             <button
               key={tab.id}
@@ -626,66 +593,6 @@ export default function ResourcesPage() {
             <div className="text-center py-12 text-slate-500 text-sm">
               No dot points match your search.
             </div>
-          )}
-        </div>
-      )}
-
-      {/* ── TAB 3: FLASHCARD QUIZ ───────────────────────────── */}
-      {activeTab === 'flashcards' && (
-        <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
-          <div className="glass-card rounded-3xl p-8 border-indigo-950/30 text-center shadow-2xl relative min-h-[280px] flex flex-col justify-between bg-slate-950/60">
-            <div>
-              <div className="flex items-center justify-between text-xs mb-4">
-                <span className="bg-amber-500/15 text-amber-400 px-2.5 py-1 rounded-full font-bold text-[10px] uppercase">
-                  {currentCard?.subjectName} · {currentCard?.topic}
-                </span>
-                <span className="font-mono text-slate-400 text-xs">
-                  Card {(currentCardIndex % displayCards.length) + 1} of {displayCards.length}
-                </span>
-              </div>
-              <div className="py-6">
-                <h3 className="text-base font-bold text-slate-100 mb-4 leading-relaxed whitespace-pre-line">
-                  {isFlipped ? currentCard?.answer : currentCard?.question}
-                </h3>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-indigo-950/20">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(false);
-                  setCurrentCardIndex((prev) => (prev > 0 ? prev - 1 : displayCards.length - 1));
-                }}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl font-semibold text-xs transition-colors cursor-pointer"
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsFlipped(!isFlipped)}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg shadow-amber-600/10"
-              >
-                <RotateCw className="h-4 w-4" />
-                <span>{isFlipped ? 'Show Question' : 'Reveal Answer'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(false);
-                  setCurrentCardIndex((prev) => (prev < displayCards.length - 1 ? prev + 1 : 0));
-                }}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl font-semibold text-xs transition-colors cursor-pointer"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-
-          {enrolledFlashcards.length === 0 && (
-            <p className="text-xs text-slate-500 text-center italic">
-              No flashcards match your enrolled subjects yet. Showing general cards.
-            </p>
           )}
         </div>
       )}
