@@ -152,7 +152,7 @@ export default function TopNav() {
   };
 
   return (
-    <header className="h-16 border-b border-emerald-500/15 bg-white/80 dark:bg-slate-950/40 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between text-slate-800 dark:text-slate-200 transition-colors">
+    <header className="h-16 border-b border-emerald-500/15 bg-slate-950/40 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between text-slate-200">
       {/* Search Bar & Cmd+K Trigger Container */}
       <div ref={searchRef} className="relative w-full max-w-md flex items-center gap-2">
         <div className="relative flex-1">
@@ -303,30 +303,16 @@ export default function TopNav() {
 
       {/* Header Actions */}
       <div className="flex items-center gap-3">
-        {/* Theme Toggle Button */}
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900/60 border border-slate-200 dark:border-emerald-500/20 transition-all cursor-pointer shadow-sm"
-          title="Toggle Light/Dark Mode"
-        >
-          {theme === 'light' ? (
-            <Moon className="h-5 w-5 text-emerald-600" />
-          ) : (
-            <Sun className="h-5 w-5 text-amber-400" />
-          )}
-        </button>
-
         {/* Notifications Icon */}
         <button
           type="button"
           onClick={() => router.push('/notifications')}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900/60 border border-slate-200 dark:border-emerald-500/20 transition-all cursor-pointer relative shadow-sm"
+          className="p-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-slate-900/60 border border-emerald-500/20 transition-all cursor-pointer relative shadow-sm"
           title="Notification Center"
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-pulse border border-white dark:border-slate-950">
+            <span className="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-pulse border border-slate-950">
               {unreadCount}
             </span>
           )}

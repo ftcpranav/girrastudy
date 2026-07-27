@@ -38,35 +38,8 @@
   --font-mono: var(--font-geist-mono), monospace;
 }
 
-/* Base Theme Variables: Light Mode (Crisp White + Emerald & Amber/Yellow accent) */
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-
-  --primary: #10b981;
-  --primary-foreground: #ffffff;
-
-  --secondary: #fef3c7;
-  --secondary-foreground: #78350f;
-
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #10b981;
-
-  --radius: 0.75rem;
-}
-
-/* Dark Mode: Deep Emerald/Slate Background + Emerald & Gold/Yellow accent */
-html.dark, .dark {
+/* Core Theme Variables (Dark Mode Default: Deep Emerald/Slate Background + Emerald & Gold/Yellow Accent) */
+:root, html, body, .dark {
   --background: #070e17;
   --foreground: #f8fafc;
 
@@ -88,6 +61,8 @@ html.dark, .dark {
   --border: rgba(16, 185, 129, 0.2);
   --input: rgba(16, 185, 129, 0.15);
   --ring: #10b981;
+
+  --radius: 0.75rem;
 }
 
 /* Glassmorphism utility classes */

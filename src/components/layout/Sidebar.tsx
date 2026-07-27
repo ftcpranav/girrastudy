@@ -48,7 +48,7 @@ export default function Sidebar({ className }: SidebarProps) {
     <>
       <aside
         className={cn(
-          'w-64 glass-card border-r flex flex-col h-screen sticky top-0 bg-white/80 dark:bg-slate-950/70 text-slate-800 dark:text-slate-200 z-30 transition-colors',
+          'w-64 glass-card border-r border-emerald-500/15 flex flex-col h-screen sticky top-0 bg-slate-950/70 text-slate-200 z-30',
           className
         )}
       >
