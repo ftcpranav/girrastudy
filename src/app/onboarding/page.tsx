@@ -14,6 +14,7 @@ import {
   BookOpen,
   Target,
   Trophy,
+  Mail,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Subject } from '@/lib/types';
@@ -36,6 +37,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  // emailPending: true while waiting for user to click the confirmation email
+  const [emailPending, setEmailPending] = useState(false);
 
   // ── Step 1: Account ───────────────────────────────────────
   const [fullName, setFullName] = useState('');
@@ -66,6 +69,32 @@ export default function OnboardingPage() {
       setStep(2);
     }
   }, [user, profile]);
+
+  // ── Effect: Handle email confirmation redirect ─────────────
+  // When a user clicks the confirmation link in their email, Supabase
+  // redirects them back with an #access_token hash. detectSessionInUrl
+  // handles this automatically. We just need to listen for the resulting
+  // SIGNED_IN event and advance them to step 2.
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event: string, session: any) => {
+        if (event === 'SIGNED_IN' && session?.user && step === 1) {
+          const userId = session.user.id;
+          // Update their profile with the data they filled in before confirming
+          if (fullName || yearGroup) {
+            await supabase.from('users')
+              .update({ full_name: fullName || 'Student', year_group: yearGroup || 'Year 12' })
+              .eq('id', userId);
+          }
+          await refreshProfile(userId);
+          setEmailPending(false);
+          setStep(2);
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, fullName, yearGroup]);
 
   // ── Effect: Load subjects from DB (no auth required — public read) ──
   useEffect(() => {
@@ -166,12 +195,14 @@ export default function OnboardingPage() {
         console.warn('Could not update profile immediately; will retry after sign-in.');
       }
 
-      // ④ Sign in immediately after sign-up (needed to establish session before DB writes)
+      // ④ Sign in immediately after sign-up (establishes session before DB writes)
       const { data: postSignInData, error: postSignInErr } = await supabase.auth.signInWithPassword({ email, password });
 
       if (postSignInErr || !postSignInData?.user) {
-        // Email confirmation might be required — guide user forward anyway
-        setErrorMsg('Please check your email and confirm your account, then come back and sign in.');
+        // Supabase requires email confirmation — show the pending screen.
+        // The onAuthStateChange listener above will detect when they confirm
+        // and automatically advance to step 2.
+        setEmailPending(true);
         return;
       }
 
@@ -284,6 +315,53 @@ export default function OnboardingPage() {
   };
 
   // ── Render ─────────────────────────────────────────────────
+
+  // ── Email Confirmation Pending Screen ─────────────────────
+  if (emailPending) {
+    return (
+      <div className="flex-1 min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12 relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-violet-600/10 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[450px] h-[450px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
+        <div className="w-full max-w-md animate-slide-up">
+          <div className="glass-card rounded-3xl p-10 shadow-2xl text-center border-indigo-950/20">
+            <div className="h-16 w-16 bg-gradient-to-tr from-violet-600/20 to-indigo-500/20 rounded-full flex items-center justify-center text-violet-400 mb-6 mx-auto border border-violet-500/20">
+              <Mail className="h-8 w-8" />
+            </div>
+            <h2 className="text-xl font-black text-slate-100 mb-2">Check Your Email</h2>
+            <p className="text-slate-400 text-sm leading-relaxed mb-2">
+              We sent a confirmation link to:
+            </p>
+            <p className="text-violet-400 font-bold text-sm mb-6">{email}</p>
+            <p className="text-slate-500 text-xs leading-relaxed mb-8">
+              Click the link in that email, then come back here — this page will automatically advance to the next step.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={async () => {
+                  setLoading(true);
+                  await supabase.auth.resend({ type: 'signup', email });
+                  setLoading(false);
+                }}
+                className="w-full py-2.5 bg-slate-900/30 hover:bg-slate-900/50 border border-indigo-950/20 text-slate-300 font-semibold text-sm rounded-xl hover:text-slate-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Resend confirmation email'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setEmailPending(false); setErrorMsg(''); }}
+                className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+              >
+                ← Back to sign up
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12 relative overflow-hidden">
       {/* Background radial blurs */}
