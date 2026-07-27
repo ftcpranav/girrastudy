@@ -50,6 +50,7 @@ export default function ResourcesPage() {
   const { user, enrolledSubjects, profile, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('past_papers');
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
+  const [selectedYearFilter, setSelectedYearFilter] = useState<'all' | 'Year 11' | 'Year 12'>('all');
 
   // Syllabus: dot point status map, keyed by dot point id
   const [statusMap, setStatusMap] = useState<Record<string, DotStatus>>({});
@@ -82,7 +83,7 @@ export default function ResourcesPage() {
     return SYLLABUS_DATA.filter((dp) => enrolledCodes.includes(dp.subjectCode));
   }, [enrolledCodes]);
 
-  // ── Apply subject + search filter ─────────────────────────
+  // ── Apply subject + year + search filter ───────────────────
   const filteredDotPoints = useMemo(() => {
     let items = enrolledSyllabusData;
 
@@ -91,6 +92,10 @@ export default function ResourcesPage() {
       if (sub?.subject?.code) {
         items = items.filter((dp) => dp.subjectCode === sub.subject!.code);
       }
+    }
+
+    if (selectedYearFilter !== 'all') {
+      items = items.filter((dp) => dp.yearGroup === selectedYearFilter);
     }
 
     if (syllabusSearch.trim()) {
@@ -103,7 +108,7 @@ export default function ResourcesPage() {
     }
 
     return items;
-  }, [enrolledSyllabusData, selectedSubjectFilter, syllabusSearch, enrolledSubjects]);
+  }, [enrolledSyllabusData, selectedSubjectFilter, selectedYearFilter, syllabusSearch, enrolledSubjects]);
 
   // ── Group dot points by subjectCode → topic ───────────────
   const grouped = useMemo(() => {
@@ -384,16 +389,34 @@ export default function ResourcesPage() {
               </div>
             </div>
 
-            {/* Search + Expand/Collapse controls */}
+            {/* Search + Year Filter + Expand/Collapse controls */}
             <div className="flex items-center gap-3 flex-wrap">
-              <div className="relative flex-1 min-w-[200px]">
+              {/* Year Filter Segmented Toggle */}
+              <div className="inline-flex p-1 bg-slate-950 border border-indigo-950/30 rounded-xl">
+                {(['all', 'Year 11', 'Year 12'] as const).map((year) => (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => setSelectedYearFilter(year)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      selectedYearFilter === year
+                        ? 'bg-amber-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {year === 'all' ? 'All Years' : year}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative flex-1 min-w-[180px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                 <input
                   type="text"
                   placeholder="Search dot points..."
                   value={syllabusSearch}
                   onChange={(e) => setSyllabusSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-indigo-950/20 rounded-xl text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50"
+                  className="w-full pl-9 pr-4 py-1.5 bg-slate-950 border border-indigo-950/20 rounded-xl text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50"
                 />
               </div>
               <button
@@ -465,6 +488,7 @@ export default function ResourcesPage() {
                     const isOpen = expandedTopics.has(topicKey);
                     const topicDps = subjectTopics[topic];
                     const topicMastered = topicDps.filter((dp) => statusMap[dp.id] === 'green').length;
+                    const topicYearGroup = topicDps[0]?.yearGroup || 'Year 12';
 
                     return (
                       <div key={topicKey}>
@@ -481,6 +505,9 @@ export default function ResourcesPage() {
                               <ChevronRight className="h-3.5 w-3.5 text-slate-500 shrink-0" />
                             )}
                             <span className="text-xs font-bold text-slate-200 truncate">{topic}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold font-mono bg-violet-500/10 text-violet-400 border border-violet-500/20 shrink-0">
+                              {topicYearGroup}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
                             <span className="text-[10px] font-mono text-slate-500">
@@ -513,7 +540,12 @@ export default function ResourcesPage() {
                                   key={dp.id}
                                   className="flex items-start justify-between gap-4 p-3.5 bg-slate-950/40 border border-indigo-950/15 rounded-xl"
                                 >
-                                  <p className="text-xs text-slate-300 leading-relaxed flex-1">{dp.dotPoint}</p>
+                                  <div className="flex-1 space-y-1">
+                                    <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold font-mono bg-slate-900 text-slate-400 border border-slate-800">
+                                      {dp.yearGroup}
+                                    </span>
+                                    <p className="text-xs text-slate-300 leading-relaxed">{dp.dotPoint}</p>
+                                  </div>
                                   <button
                                     type="button"
                                     onClick={() => toggleStatus(dp.id)}

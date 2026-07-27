@@ -1,244 +1,912 @@
 // ============================================================
-// GirraStudy — HSC Syllabus Dot Points
-// Source: NESA NSW HSC Syllabus (https://www.nesa.nsw.edu.au)
-// Covers all 20 pre-seeded HSC subjects.
+// GirraStudy — HSC & Preliminary Syllabus Dot Points
+// Source: NESA NSW HSC & Preliminary Syllabus (https://www.nesa.nsw.edu.au)
+// Covers all 20 pre-seeded HSC subjects with Year 11 and Year 12 modules.
 // ============================================================
 
 export interface SyllabusDotPoint {
   id: string;
   subjectCode: string;
+  yearGroup: 'Year 11' | 'Year 12';
   topic: string;
   dotPoint: string;
 }
 
 export const SYLLABUS_DATA: SyllabusDotPoint[] = [
-  // ENGLISH ADVANCED (ENG_ADV)
-  { id: 'ea1', subjectCode: 'ENG_ADV', topic: 'Texts and Human Experiences', dotPoint: 'Analyse the ways text structures, language features and modes shape meaning and influence responses.' },
-  { id: 'ea2', subjectCode: 'ENG_ADV', topic: 'Texts and Human Experiences', dotPoint: 'Evaluate the effect of the interplay of structure, form and language on the construction of meaning.' },
-  { id: 'ea3', subjectCode: 'ENG_ADV', topic: 'Texts and Human Experiences', dotPoint: 'Explain how and why individuals and groups are represented in and through texts.' },
-  { id: 'ea4', subjectCode: 'ENG_ADV', topic: 'Texts and Human Experiences', dotPoint: 'Analyse how context, purpose, audience and form shape meaning in texts.' },
-  { id: 'ea5', subjectCode: 'ENG_ADV', topic: 'Common Module — Writing', dotPoint: 'Compose extended texts that synthesise ideas from your prescribed and related texts.' },
-  { id: 'ea6', subjectCode: 'ENG_ADV', topic: 'Module A — Textual Conversations', dotPoint: 'Examine how and why texts are in conversation with each other through shared concerns and perspectives.' },
-  { id: 'ea7', subjectCode: 'ENG_ADV', topic: 'Module A — Textual Conversations', dotPoint: 'Evaluate how the composer of the later text has reframed or reinterpreted the original text.' },
-  { id: 'ea8', subjectCode: 'ENG_ADV', topic: 'Module B — Critical Study of Literature', dotPoint: 'Evaluate the ways the text has been received and valued over time.' },
-  { id: 'ea9', subjectCode: 'ENG_ADV', topic: 'Module B — Critical Study of Literature', dotPoint: 'Articulate and justify a personal critical perspective through close reading of the prescribed text.' },
-  { id: 'ea10', subjectCode: 'ENG_ADV', topic: 'Module C — Craft of Writing', dotPoint: 'Experiment with language, form and structure to compose texts that shape meaning and engage readers.' },
-  { id: 'ea11', subjectCode: 'ENG_ADV', topic: 'Module C — Craft of Writing', dotPoint: 'Analyse and evaluate the craft of writing in texts studied, applying insights to own compositions.' },
-
-  // ENGLISH STANDARD (ENG_STD)
-  { id: 'es1', subjectCode: 'ENG_STD', topic: 'Texts and Human Experiences', dotPoint: 'Explore how texts represent individual and collective human experiences.' },
-  { id: 'es2', subjectCode: 'ENG_STD', topic: 'Texts and Human Experiences', dotPoint: 'Identify text structures and language features used in a variety of forms and modes.' },
-  { id: 'es3', subjectCode: 'ENG_STD', topic: 'Texts and Human Experiences', dotPoint: 'Explain the significance of context in shaping the values and attitudes expressed in texts.' },
-  { id: 'es4', subjectCode: 'ENG_STD', topic: 'Module A — Contemporary Possibilities', dotPoint: 'Explore the ways digital, multimodal and hybrid texts engage audiences in the modern world.' },
-  { id: 'es5', subjectCode: 'ENG_STD', topic: 'Module A — Contemporary Possibilities', dotPoint: 'Discuss how texts communicate meaning through a combination of visual, auditory and textual elements.' },
-  { id: 'es6', subjectCode: 'ENG_STD', topic: 'Module B — Close Study of Literature', dotPoint: 'Engage in close reading of a single literary text to develop a sustained personal interpretation.' },
-  { id: 'es7', subjectCode: 'ENG_STD', topic: 'Module C — Writing and Representation', dotPoint: 'Compose a variety of texts that represent personal, social and cultural perspectives.' },
-  { id: 'es8', subjectCode: 'ENG_STD', topic: 'Module C — Writing and Representation', dotPoint: 'Reflect on and evaluate the effectiveness of own compositions using metalanguage.' },
-
-  // ENGLISH EXTENSION 1 (ENG_EXT1)
-  { id: 'ee1_1', subjectCode: 'ENG_EXT1', topic: 'Texts, Culture and Value', dotPoint: 'Analyse the relationship between texts and the cultural, social and historical contexts of their production and reception.' },
-  { id: 'ee1_2', subjectCode: 'ENG_EXT1', topic: 'Texts, Culture and Value', dotPoint: 'Evaluate how literary texts represent the complexities of human experience and the values that shape societies.' },
-  { id: 'ee1_3', subjectCode: 'ENG_EXT1', topic: 'Literary Worlds', dotPoint: 'Examine how composers of literary texts construct worlds that reflect cultural assumptions and challenge readers.' },
-  { id: 'ee1_4', subjectCode: 'ENG_EXT1', topic: 'Literary Worlds', dotPoint: 'Analyse the use of intertextuality and genre conventions to position readers and create meaning.' },
-  { id: 'ee1_5', subjectCode: 'ENG_EXT1', topic: 'Critical Frameworks', dotPoint: 'Apply a range of critical frameworks (feminist, postcolonial, Marxist, psychoanalytic) to analyse texts.' },
-  { id: 'ee1_6', subjectCode: 'ENG_EXT1', topic: 'Critical Frameworks', dotPoint: 'Evaluate the strengths and limitations of different critical approaches when applied to a single text.' },
-
-  // ENGLISH EXTENSION 2 (ENG_EXT2)
-  { id: 'ee2_1', subjectCode: 'ENG_EXT2', topic: 'Major Work', dotPoint: 'Produce a sustained, substantial and coherent composition demonstrating sophisticated control of language, form and structure.' },
-  { id: 'ee2_2', subjectCode: 'ENG_EXT2', topic: 'Major Work', dotPoint: "Compose a writer's statement articulating the creative decisions, influences and critical underpinning of the major work." },
-  { id: 'ee2_3', subjectCode: 'ENG_EXT2', topic: 'Composition Process', dotPoint: 'Document the processes of research, drafting, revision and reflection that informed the development of the major work.' },
-  { id: 'ee2_4', subjectCode: 'ENG_EXT2', topic: 'Composition Process', dotPoint: 'Engage with the work of other composers and theorists to inform and extend your own creative practice.' },
-
-  // MATHEMATICS ADVANCED (MATH_ADV)
-  { id: 'ma1', subjectCode: 'MATH_ADV', topic: 'Functions', dotPoint: 'Understand the concept of a function and use function notation, domain and range.' },
-  { id: 'ma2', subjectCode: 'MATH_ADV', topic: 'Functions', dotPoint: 'Identify and sketch polynomial, reciprocal, absolute value, exponential and logarithmic functions.' },
-  { id: 'ma3', subjectCode: 'MATH_ADV', topic: 'Trigonometric Functions', dotPoint: 'Define trigonometric functions using the unit circle and sketch their graphs.' },
-  { id: 'ma4', subjectCode: 'MATH_ADV', topic: 'Trigonometric Functions', dotPoint: 'Prove trigonometric identities including Pythagorean, double angle and sum-to-product formulas.' },
-  { id: 'ma5', subjectCode: 'MATH_ADV', topic: 'Calculus — Differentiation', dotPoint: 'Apply the product rule, quotient rule and chain rule to differentiate composite functions.' },
-  { id: 'ma6', subjectCode: 'MATH_ADV', topic: 'Calculus — Differentiation', dotPoint: 'Differentiate exponential, logarithmic and trigonometric functions.' },
-  { id: 'ma7', subjectCode: 'MATH_ADV', topic: 'Calculus — Integration', dotPoint: 'Evaluate definite and indefinite integrals using standard antiderivatives and substitution.' },
-  { id: 'ma8', subjectCode: 'MATH_ADV', topic: 'Calculus — Integration', dotPoint: 'Apply integration to find areas under curves and between two functions.' },
-  { id: 'ma9', subjectCode: 'MATH_ADV', topic: 'Statistical Analysis', dotPoint: 'Calculate and interpret measures of central tendency and spread including variance and standard deviation.' },
-  { id: 'ma10', subjectCode: 'MATH_ADV', topic: 'Statistical Analysis', dotPoint: 'Use the normal distribution to model continuous random variables and find probabilities.' },
-  { id: 'ma11', subjectCode: 'MATH_ADV', topic: 'Financial Mathematics', dotPoint: 'Apply arithmetic and geometric sequences to financial problems including loans and superannuation.' },
-  { id: 'ma12', subjectCode: 'MATH_ADV', topic: 'Exponential & Logarithmic Functions', dotPoint: 'Solve exponential equations and apply logarithms to growth and decay problems.' },
-
-  // MATHEMATICS EXTENSION 1 (MATH_EXT1)
-  { id: 'me1_1', subjectCode: 'MATH_EXT1', topic: 'Proof', dotPoint: 'Construct proofs by mathematical induction including divisibility, inequality and series proofs.' },
-  { id: 'me1_2', subjectCode: 'MATH_EXT1', topic: 'Proof', dotPoint: 'Understand and apply direct proof, proof by contradiction and proof by contrapositive.' },
-  { id: 'me1_3', subjectCode: 'MATH_EXT1', topic: 'Vectors', dotPoint: 'Represent vectors in two dimensions using component form and apply vector operations.' },
-  { id: 'me1_4', subjectCode: 'MATH_EXT1', topic: 'Vectors', dotPoint: 'Use the dot product to determine angles between vectors and test for perpendicularity.' },
-  { id: 'me1_5', subjectCode: 'MATH_EXT1', topic: 'Trigonometry & Further Functions', dotPoint: 'Apply t-substitution (half-angle formulae) to solve trigonometric equations and evaluate integrals.' },
-  { id: 'me1_6', subjectCode: 'MATH_EXT1', topic: 'Trigonometry & Further Functions', dotPoint: 'Understand inverse trigonometric functions, their domains, ranges and derivatives.' },
-  { id: 'me1_7', subjectCode: 'MATH_EXT1', topic: 'Combinatorics', dotPoint: 'Apply the Binomial theorem to expand (a+b)^n and use the pigeonhole principle.' },
-  { id: 'me1_8', subjectCode: 'MATH_EXT1', topic: 'Combinatorics', dotPoint: 'Solve counting problems using permutations, combinations and inclusion-exclusion.' },
-  { id: 'me1_9', subjectCode: 'MATH_EXT1', topic: 'Calculus', dotPoint: 'Apply integration by parts and further substitution techniques to evaluate complex integrals.' },
-  { id: 'me1_10', subjectCode: 'MATH_EXT1', topic: 'Statistical Analysis', dotPoint: 'Understand discrete probability distributions including binomial and hypergeometric distributions.' },
-
-  // MATHEMATICS EXTENSION 2 (MATH_EXT2)
-  { id: 'me2_1', subjectCode: 'MATH_EXT2', topic: 'Proof', dotPoint: 'Construct proofs using complex numbers, vectors, and calculus arguments.' },
-  { id: 'me2_2', subjectCode: 'MATH_EXT2', topic: 'Proof', dotPoint: 'Evaluate and critique mathematical arguments for logical validity and completeness.' },
-  { id: 'me2_3', subjectCode: 'MATH_EXT2', topic: 'Complex Numbers', dotPoint: 'Represent complex numbers in Cartesian, polar (modulus-argument) and Euler exponential form.' },
-  { id: 'me2_4', subjectCode: 'MATH_EXT2', topic: 'Complex Numbers', dotPoint: "Apply de Moivre's theorem to find powers and roots of complex numbers." },
-  { id: 'me2_5', subjectCode: 'MATH_EXT2', topic: 'Complex Numbers', dotPoint: 'Sketch loci and regions in the Argand diagram defined by algebraic conditions on complex numbers.' },
-  { id: 'me2_6', subjectCode: 'MATH_EXT2', topic: 'Vectors', dotPoint: 'Represent and manipulate vectors in three dimensions, including dot and cross products.' },
-  { id: 'me2_7', subjectCode: 'MATH_EXT2', topic: 'Vectors', dotPoint: 'Determine vector equations of lines and planes in 3D and interpret their geometric meaning.' },
-  { id: 'me2_8', subjectCode: 'MATH_EXT2', topic: 'Integration Techniques', dotPoint: 'Apply advanced integration: partial fractions, trigonometric substitution and reduction formulae.' },
-  { id: 'me2_9', subjectCode: 'MATH_EXT2', topic: 'Mechanics', dotPoint: 'Model resisted motion, circular motion and simple harmonic motion using differential equations.' },
-  { id: 'me2_10', subjectCode: 'MATH_EXT2', topic: 'Mechanics', dotPoint: 'Solve and interpret first-order and second-order differential equations in physical contexts.' },
-
-  // CHEMISTRY (CHEM)
-  { id: 'ch1', subjectCode: 'CHEM', topic: 'Properties & Structure of Matter', dotPoint: 'Explain the properties of matter in terms of atomic and bonding structure.' },
-  { id: 'ch2', subjectCode: 'CHEM', topic: 'Properties & Structure of Matter', dotPoint: 'Compare properties of ionic, covalent molecular, covalent network and metallic substances.' },
-  { id: 'ch3', subjectCode: 'CHEM', topic: 'Quantitative Chemistry', dotPoint: 'Apply the mole concept to calculate molar mass, concentration, percentage composition and empirical formulae.' },
-  { id: 'ch4', subjectCode: 'CHEM', topic: 'Quantitative Chemistry', dotPoint: 'Plan and conduct titration experiments to determine the concentration of unknown solutions.' },
-  { id: 'ch5', subjectCode: 'CHEM', topic: 'Reactive Chemistry', dotPoint: 'Describe and predict the products of combustion, precipitation, acid-base and redox reactions.' },
-  { id: 'ch6', subjectCode: 'CHEM', topic: 'Reactive Chemistry', dotPoint: 'Write balanced ionic and half-equations for reactions in aqueous solution.' },
-  { id: 'ch7', subjectCode: 'CHEM', topic: 'Drivers of Reactions', dotPoint: 'Apply enthalpy change, entropy and Gibbs free energy (DG = DH - TDS) to predict spontaneity.' },
-  { id: 'ch8', subjectCode: 'CHEM', topic: 'Equilibrium & Acid/Base', dotPoint: "Apply Le Chatelier's principle to predict equilibrium shifts with changes in temperature, pressure and concentration." },
-  { id: 'ch9', subjectCode: 'CHEM', topic: 'Equilibrium & Acid/Base', dotPoint: 'Calculate pH, Ka and Kb for weak acids and bases; solve buffer equilibrium problems.' },
-  { id: 'ch10', subjectCode: 'CHEM', topic: 'Organic Chemistry', dotPoint: 'Name and draw structural formulae for hydrocarbons, alcohols, aldehydes, ketones, carboxylic acids, esters and amines.' },
-  { id: 'ch11', subjectCode: 'CHEM', topic: 'Organic Chemistry', dotPoint: 'Analyse reaction pathways for primary, secondary and tertiary alcohols through oxidation reactions.' },
-  { id: 'ch12', subjectCode: 'CHEM', topic: 'Organic Chemistry', dotPoint: 'Distinguish between addition, substitution, condensation and elimination reaction types.' },
-
-  // PHYSICS (PHYS)
-  { id: 'ph1', subjectCode: 'PHYS', topic: 'Kinematics', dotPoint: 'Analyse the relative motion between two objects using vector diagrams and relative velocity.' },
-  { id: 'ph2', subjectCode: 'PHYS', topic: 'Kinematics', dotPoint: 'Solve projectile motion problems using independent horizontal and vertical components.' },
-  { id: 'ph3', subjectCode: 'PHYS', topic: 'Dynamics', dotPoint: "Apply Newton's three laws of motion to analyse forces in static and dynamic systems." },
-  { id: 'ph4', subjectCode: 'PHYS', topic: 'Dynamics', dotPoint: 'Resolve forces and apply equilibrium conditions to objects on inclines with friction.' },
-  { id: 'ph5', subjectCode: 'PHYS', topic: 'Waves & Thermodynamics', dotPoint: 'Apply the wave model to explain reflection, refraction, diffraction and interference of light and sound.' },
-  { id: 'ph6', subjectCode: 'PHYS', topic: 'Waves & Thermodynamics', dotPoint: 'Explain the photoelectric effect and its evidence for the particle nature of light.' },
-  { id: 'ph7', subjectCode: 'PHYS', topic: 'Electricity & Magnetism', dotPoint: 'Analyse electric fields, potential difference and capacitance in parallel plate configurations.' },
-  { id: 'ph8', subjectCode: 'PHYS', topic: 'Electricity & Magnetism', dotPoint: "Apply Lenz's law and Faraday's law to calculate induced EMF in rotating coils." },
-  { id: 'ph9', subjectCode: 'PHYS', topic: 'Electricity & Magnetism', dotPoint: 'Describe the operation of AC generators, transformers and electromagnetic induction in energy transmission.' },
-  { id: 'ph10', subjectCode: 'PHYS', topic: 'Special Relativity', dotPoint: 'Apply the postulates of special relativity to explain time dilation, length contraction and relativistic mass.' },
-  { id: 'ph11', subjectCode: 'PHYS', topic: 'Special Relativity', dotPoint: 'Use the Lorentz factor and calculate relativistic quantities for particles at relativistic speeds.' },
-  { id: 'ph12', subjectCode: 'PHYS', topic: 'From the Universe to the Atom', dotPoint: 'Describe the Standard Model of matter and explain the role of quarks, leptons and fundamental forces.' },
-  { id: 'ph13', subjectCode: 'PHYS', topic: 'From the Universe to the Atom', dotPoint: 'Describe nuclear fission, fusion and radioactive decay; apply E = mc2 to calculate energy changes.' },
-
-  // BIOLOGY (BIOL)
-  { id: 'bi1', subjectCode: 'BIOL', topic: 'Cells as the Basis of Life', dotPoint: 'Describe the structure and function of organelles in prokaryotic and eukaryotic cells.' },
-  { id: 'bi2', subjectCode: 'BIOL', topic: 'Cells as the Basis of Life', dotPoint: 'Explain how the fluid mosaic model of the cell membrane accounts for selective permeability.' },
-  { id: 'bi3', subjectCode: 'BIOL', topic: 'Organisation of Living Things', dotPoint: 'Analyse the requirements for transport of nutrients and waste products in multicellular organisms.' },
-  { id: 'bi4', subjectCode: 'BIOL', topic: 'Biological Diversity', dotPoint: 'Evaluate the theory of evolution by natural selection, including mutations and genetic drift.' },
-  { id: 'bi5', subjectCode: 'BIOL', topic: 'Biological Diversity', dotPoint: 'Explain the biological species concept and analyse exceptions.' },
-  { id: 'bi6', subjectCode: 'BIOL', topic: 'Heredity', dotPoint: "Apply Mendel's laws of segregation and independent assortment to solve genetics problems including dihybrid crosses." },
-  { id: 'bi7', subjectCode: 'BIOL', topic: 'Heredity', dotPoint: 'Distinguish between autosomal and sex-linked inheritance and predict phenotypic ratios.' },
-  { id: 'bi8', subjectCode: 'BIOL', topic: 'Infectious Disease', dotPoint: "Explain how pathogens cause disease and describe the body's non-specific and specific immune responses." },
-  { id: 'bi9', subjectCode: 'BIOL', topic: 'Infectious Disease', dotPoint: 'Evaluate the role of vaccinations, antibiotics and antivirals in managing infectious disease.' },
-  { id: 'bi10', subjectCode: 'BIOL', topic: 'Genetics: The Code Broken?', dotPoint: 'Describe the Central Dogma (DNA to RNA to Protein) and explain transcription and translation at the molecular level.' },
-  { id: 'bi11', subjectCode: 'BIOL', topic: 'Genetics: The Code Broken?', dotPoint: 'Analyse applications of genetic technologies including gel electrophoresis, PCR, gene therapy and CRISPR.' },
-
-  // ECONOMICS (ECON)
-  { id: 'ec1', subjectCode: 'ECON', topic: 'Introduction to Economics', dotPoint: 'Explain the concept of scarcity and opportunity cost and apply these to resource allocation decisions.' },
-  { id: 'ec2', subjectCode: 'ECON', topic: 'Introduction to Economics', dotPoint: 'Analyse the circular flow of income model and the role of households, firms, government and the external sector.' },
-  { id: 'ec3', subjectCode: 'ECON', topic: 'Markets', dotPoint: 'Apply supply and demand analysis to explain price determination and market equilibrium.' },
-  { id: 'ec4', subjectCode: 'ECON', topic: 'Markets', dotPoint: 'Explain price elasticity of demand and supply; calculate PED and evaluate implications for revenue.' },
-  { id: 'ec5', subjectCode: 'ECON', topic: 'Labour Markets', dotPoint: 'Analyse the factors that determine wage outcomes and explain the role of bargaining and award structures.' },
-  { id: 'ec6', subjectCode: 'ECON', topic: 'Economic Issues', dotPoint: 'Evaluate macroeconomic policies (monetary, fiscal, microeconomic reform) used to achieve sustained economic growth.' },
-  { id: 'ec7', subjectCode: 'ECON', topic: 'Economic Issues', dotPoint: "Assess the effectiveness of the RBA's inflation targeting framework in maintaining price stability (2-3% target band)." },
-  { id: 'ec8', subjectCode: 'ECON', topic: 'Economic Issues', dotPoint: 'Analyse the causes and consequences of unemployment and evaluate policies to reduce it.' },
-  { id: 'ec9', subjectCode: 'ECON', topic: 'Global Economy', dotPoint: "Explain Australia's trade patterns, comparative advantage and the composition of imports and exports." },
-  { id: 'ec10', subjectCode: 'ECON', topic: 'Global Economy', dotPoint: "Analyse the structure of Australia's Balance of Payments and evaluate the significance of the Current Account Deficit." },
-  { id: 'ec11', subjectCode: 'ECON', topic: 'Global Economy', dotPoint: 'Assess the role of the IMF, World Bank and WTO in the global economic system.' },
-  { id: 'ec12', subjectCode: 'ECON', topic: 'Economic Growth & Development', dotPoint: 'Distinguish between economic growth and development; evaluate GDP, HDI and GINI coefficient as measures.' },
-
-  // BUSINESS STUDIES (BUSS)
-  { id: 'bs1', subjectCode: 'BUSS', topic: 'Nature of Business', dotPoint: 'Explain the role of business in the economic system and analyse internal and external influences on business.' },
-  { id: 'bs2', subjectCode: 'BUSS', topic: 'Nature of Business', dotPoint: 'Describe the different types of business structure and their legal obligations.' },
-  { id: 'bs3', subjectCode: 'BUSS', topic: 'Business Management', dotPoint: 'Apply management theories and leadership styles to real-world business scenarios.' },
-  { id: 'bs4', subjectCode: 'BUSS', topic: 'Business Management', dotPoint: 'Evaluate the effectiveness of strategies used to manage business change and resistance to change.' },
-  { id: 'bs5', subjectCode: 'BUSS', topic: 'Marketing', dotPoint: 'Analyse the elements of the marketing mix (7Ps) and develop integrated marketing strategies for a target market.' },
-  { id: 'bs6', subjectCode: 'BUSS', topic: 'Marketing', dotPoint: 'Evaluate the impact of technology and globalisation on marketing strategies and consumer behaviour.' },
-  { id: 'bs7', subjectCode: 'BUSS', topic: 'Finance', dotPoint: 'Prepare and analyse income statements, balance sheets and cash flow statements.' },
-  { id: 'bs8', subjectCode: 'BUSS', topic: 'Finance', dotPoint: 'Calculate and interpret financial ratios including liquidity, profitability, efficiency and leverage.' },
-  { id: 'bs9', subjectCode: 'BUSS', topic: 'Human Resources', dotPoint: 'Explain the staffing process (acquisition, development, maintenance, separation) and HR strategies.' },
-  { id: 'bs10', subjectCode: 'BUSS', topic: 'Human Resources', dotPoint: 'Evaluate performance management strategies and their effect on employee motivation and organisational goals.' },
-
-  // LEGAL STUDIES (LEGL)
-  { id: 'ls1', subjectCode: 'LEGL', topic: 'The Legal System', dotPoint: 'Explain the role of law in society and sources of law including common law, statute law and delegated legislation.' },
-  { id: 'ls2', subjectCode: 'LEGL', topic: 'The Legal System', dotPoint: 'Describe the structure of the Australian court hierarchy and the principle of precedent (stare decisis).' },
-  { id: 'ls3', subjectCode: 'LEGL', topic: 'The Legal System', dotPoint: 'Analyse the distinction between criminal law and civil law, including burden and standard of proof.' },
-  { id: 'ls4', subjectCode: 'LEGL', topic: 'Crime', dotPoint: 'Identify the elements of a crime (actus reus and mens rea) and evaluate available defences.' },
-  { id: 'ls5', subjectCode: 'LEGL', topic: 'Crime', dotPoint: 'Assess the effectiveness of the criminal justice system in achieving just outcomes for victims, offenders and society.' },
-  { id: 'ls6', subjectCode: 'LEGL', topic: 'Human Rights', dotPoint: 'Explain the origin, development and enforcement of international human rights instruments.' },
-  { id: 'ls7', subjectCode: 'LEGL', topic: 'Human Rights', dotPoint: 'Evaluate the effectiveness of domestic and international mechanisms in protecting human rights.' },
-  { id: 'ls8', subjectCode: 'LEGL', topic: 'Contemporary Issue', dotPoint: "Analyse a contemporary legal issue, applying relevant legal principles and evaluating the law's response." },
-  { id: 'ls9', subjectCode: 'LEGL', topic: 'Options Module', dotPoint: 'Examine the law relating to the chosen options topic (Family, Indigenous Peoples, Shelter, Consumers or Global Environment).' },
-
-  // MODERN HISTORY (HIST_MOD)
-  { id: 'mh1', subjectCode: 'HIST_MOD', topic: 'Historical Concepts & Skills', dotPoint: 'Apply historical concepts including continuity, change, cause, effect, significance and perspective to historical inquiry.' },
-  { id: 'mh2', subjectCode: 'HIST_MOD', topic: 'Historical Concepts & Skills', dotPoint: 'Evaluate the reliability, relevance and purpose of primary and secondary sources.' },
-  { id: 'mh3', subjectCode: 'HIST_MOD', topic: 'Peace & Conflict (WWI)', dotPoint: 'Analyse the causes of World War I and assess the significance of individual decisions and structural forces.' },
-  { id: 'mh4', subjectCode: 'HIST_MOD', topic: 'Peace & Conflict (WWI)', dotPoint: 'Evaluate the nature of trench warfare and the experience of soldiers on the Western Front.' },
-  { id: 'mh5', subjectCode: 'HIST_MOD', topic: 'National Study', dotPoint: 'Examine the political, economic and social developments of the chosen national study.' },
-  { id: 'mh6', subjectCode: 'HIST_MOD', topic: 'National Study', dotPoint: 'Assess the significance of key individuals and ideologies in shaping the history of the chosen nation.' },
-  { id: 'mh7', subjectCode: 'HIST_MOD', topic: 'International Study — WWII', dotPoint: 'Analyse the causes and consequences of World War II, including the Holocaust and atomic bombings.' },
-  { id: 'mh8', subjectCode: 'HIST_MOD', topic: 'International Study — WWII', dotPoint: 'Evaluate the role of propaganda, ideology and technology in shaping World War II.' },
-  { id: 'mh9', subjectCode: 'HIST_MOD', topic: 'Change in the Modern World', dotPoint: 'Examine a significant change in the modern world including its causes, nature and consequences.' },
-
-  // ANCIENT HISTORY (HIST_ANC)
-  { id: 'ah1', subjectCode: 'HIST_ANC', topic: 'Historical Concepts & Skills', dotPoint: 'Evaluate the value and limitations of primary sources (archaeological and written) in reconstructing the ancient world.' },
-  { id: 'ah2', subjectCode: 'HIST_ANC', topic: 'Historical Concepts & Skills', dotPoint: 'Explain the role of historiography and the way interpretations of the ancient world change over time.' },
-  { id: 'ah3', subjectCode: 'HIST_ANC', topic: 'Personalities in their Times', dotPoint: 'Assess the impact of key personalities on the political, military and cultural development of their society.' },
-  { id: 'ah4', subjectCode: 'HIST_ANC', topic: 'Personalities in their Times', dotPoint: 'Evaluate contemporary and later views of key ancient personalities and account for interpretive differences.' },
-  { id: 'ah5', subjectCode: 'HIST_ANC', topic: 'Cities of Vesuvius', dotPoint: 'Describe social, economic and political life of Pompeii and Herculaneum from archaeological evidence.' },
-  { id: 'ah6', subjectCode: 'HIST_ANC', topic: 'Cities of Vesuvius', dotPoint: 'Assess the contributions of excavations at Pompeii and Herculaneum to understanding Roman society.' },
-  { id: 'ah7', subjectCode: 'HIST_ANC', topic: 'Ancient Societies', dotPoint: 'Examine the political, economic and social structures of the chosen ancient society.' },
-  { id: 'ah8', subjectCode: 'HIST_ANC', topic: 'Ancient Societies', dotPoint: 'Analyse the role of religion, culture and ideology in shaping the chosen ancient society.' },
-
-  // SOFTWARE ENGINEERING (SOFT_ENG)
-  { id: 'se1', subjectCode: 'SOFT_ENG', topic: 'Software Development Lifecycle', dotPoint: 'Describe stages of the software development process: requirements, design, implementation, testing and maintenance.' },
-  { id: 'se2', subjectCode: 'SOFT_ENG', topic: 'Software Development Lifecycle', dotPoint: 'Compare structured, object-oriented and agile methodologies and evaluate their contexts of use.' },
-  { id: 'se3', subjectCode: 'SOFT_ENG', topic: 'Programming Fundamentals', dotPoint: 'Design and implement algorithms using sequence, selection and iteration constructs.' },
-  { id: 'se4', subjectCode: 'SOFT_ENG', topic: 'Programming Fundamentals', dotPoint: 'Apply OOP principles: encapsulation, inheritance, polymorphism and abstraction.' },
-  { id: 'se5', subjectCode: 'SOFT_ENG', topic: 'Data Structures', dotPoint: 'Implement and evaluate arrays, stacks, queues, linked lists and trees.' },
-  { id: 'se6', subjectCode: 'SOFT_ENG', topic: 'Data Structures', dotPoint: 'Analyse the time and space complexity of common algorithms using Big-O notation.' },
-  { id: 'se7', subjectCode: 'SOFT_ENG', topic: 'Software Development Tools', dotPoint: 'Use IDEs, version control systems, debugging tools and testing frameworks effectively.' },
-  { id: 'se8', subjectCode: 'SOFT_ENG', topic: 'Project Work', dotPoint: 'Plan, develop and evaluate a software project addressing a real-world need, with full documentation.' },
-
-  // ENGINEERING STUDIES (ENG_STUD)
-  { id: 'engs1', subjectCode: 'ENG_STUD', topic: 'Engineering Fundamentals', dotPoint: 'Apply mechanical principles including forces, torque, moments and equilibrium to engineering structures.' },
-  { id: 'engs2', subjectCode: 'ENG_STUD', topic: 'Engineering Fundamentals', dotPoint: "Explain material properties including stress, strain and Young's modulus applied to engineering design." },
-  { id: 'engs3', subjectCode: 'ENG_STUD', topic: 'Hydraulics and Pneumatics', dotPoint: 'Describe principles of hydraulic and pneumatic systems and analyse their engineering applications.' },
-  { id: 'engs4', subjectCode: 'ENG_STUD', topic: 'Engineering Drawing', dotPoint: 'Produce and interpret engineering drawings using standard orthographic and isometric projection.' },
-  { id: 'engs5', subjectCode: 'ENG_STUD', topic: 'Electrical Engineering', dotPoint: "Apply Ohm's law, Kirchhoff's laws and electrical circuit analysis to engineering problems." },
-  { id: 'engs6', subjectCode: 'ENG_STUD', topic: 'Focus Module', dotPoint: 'Evaluate engineering principles, historical development and societal impact of the chosen focus module.' },
-  { id: 'engs7', subjectCode: 'ENG_STUD', topic: 'Engineering Project', dotPoint: 'Plan, construct and evaluate an engineering project, applying appropriate design and testing strategies.' },
-
-  // INFORMATION PROCESSES AND TECHNOLOGY (IPT)
-  { id: 'ipt1', subjectCode: 'IPT', topic: 'Information Systems', dotPoint: 'Identify and describe the components of an information system: people, data, processes, hardware and software.' },
-  { id: 'ipt2', subjectCode: 'IPT', topic: 'Information Systems', dotPoint: 'Analyse information flow within an organisation using data flow diagrams and systems analysis techniques.' },
-  { id: 'ipt3', subjectCode: 'IPT', topic: 'Databases', dotPoint: 'Design relational databases using entity-relationship diagrams, normalisation (1NF, 2NF, 3NF) and SQL queries.' },
-  { id: 'ipt4', subjectCode: 'IPT', topic: 'Databases', dotPoint: 'Evaluate the advantages of database management systems over file-based systems for data integrity and security.' },
-  { id: 'ipt5', subjectCode: 'IPT', topic: 'Communications Systems', dotPoint: 'Explain data communications concepts including protocols, transmission media, network topologies and the OSI model.' },
-  { id: 'ipt6', subjectCode: 'IPT', topic: 'Communications Systems', dotPoint: 'Analyse issues of privacy, security and intellectual property in relation to information systems.' },
-  { id: 'ipt7', subjectCode: 'IPT', topic: 'Transaction Processing', dotPoint: 'Describe characteristics of transaction processing systems and their application in real-time environments.' },
-  { id: 'ipt8', subjectCode: 'IPT', topic: 'Project Work', dotPoint: 'Plan, develop and evaluate an information system project meeting a defined user need.' },
-
-  // PDHPE
-  { id: 'pd1', subjectCode: 'PDHPE', topic: 'Health Priorities in Australia', dotPoint: 'Justify why some groups experience a greater burden of ill health and explain the social determinants of health.' },
-  { id: 'pd2', subjectCode: 'PDHPE', topic: 'Health Priorities in Australia', dotPoint: 'Evaluate the effectiveness of health promotion strategies including the Ottawa Charter and National Health Priority Areas.' },
-  { id: 'pd3', subjectCode: 'PDHPE', topic: 'The Body in Motion', dotPoint: 'Analyse the structure and function of the musculoskeletal, cardiovascular and respiratory systems during physical activity.' },
-  { id: 'pd4', subjectCode: 'PDHPE', topic: 'The Body in Motion', dotPoint: 'Explain the acute and chronic adaptations to exercise training across body systems.' },
-  { id: 'pd5', subjectCode: 'PDHPE', topic: 'Sport & Physical Activity in Australia', dotPoint: 'Analyse the relationship between sport, physical activity, culture and identity in Australian society.' },
-  { id: 'pd6', subjectCode: 'PDHPE', topic: 'Sport & Physical Activity in Australia', dotPoint: 'Evaluate the effectiveness of strategies to increase participation in physical activity across diverse groups.' },
-  { id: 'pd7', subjectCode: 'PDHPE', topic: 'Performance', dotPoint: 'Evaluate the use of scientific, psychological and sociocultural approaches to improving performance.' },
-  { id: 'pd8', subjectCode: 'PDHPE', topic: 'Performance', dotPoint: 'Assess the ethical issues associated with performance-enhancing technologies and substances in sport.' },
-
-  // STUDIES OF RELIGION (SOR)
-  { id: 'sor1', subjectCode: 'SOR', topic: 'Nature of Religion & Belief', dotPoint: 'Describe the characteristics of religion and explain what distinguishes religious from non-religious worldviews.' },
-  { id: 'sor2', subjectCode: 'SOR', topic: 'Nature of Religion & Belief', dotPoint: 'Explain the concept of the Dreaming and its significance as the foundation of Aboriginal spirituality.' },
-  { id: 'sor3', subjectCode: 'SOR', topic: 'Christianity', dotPoint: 'Outline the principal beliefs of Christianity including the nature of God and the significance of Jesus Christ.' },
-  { id: 'sor4', subjectCode: 'SOR', topic: 'Christianity', dotPoint: 'Describe the practices of worship, prayer and the sacraments in Christian tradition.' },
-  { id: 'sor5', subjectCode: 'SOR', topic: 'Islam', dotPoint: 'Outline the Five Pillars of Islam and explain their significance to Muslim adherents.' },
-  { id: 'sor6', subjectCode: 'SOR', topic: 'Islam', dotPoint: 'Explain the beliefs of Islam about God (Tawhid), prophethood and the afterlife.' },
-  { id: 'sor7', subjectCode: 'SOR', topic: 'Judaism', dotPoint: 'Describe the principal beliefs of Judaism including the covenant relationship, Torah and ethical monotheism.' },
-  { id: 'sor8', subjectCode: 'SOR', topic: 'Judaism', dotPoint: 'Explain the significance of Shabbat, Jewish festivals and the synagogue in maintaining Jewish identity.' },
-  { id: 'sor9', subjectCode: 'SOR', topic: 'Buddhism', dotPoint: 'Outline the Four Noble Truths and the Eightfold Path as the foundation of Buddhist teaching.' },
-  { id: 'sor10', subjectCode: 'SOR', topic: 'Buddhism', dotPoint: 'Explain the significance of the Three Jewels (Buddha, Dhamma, Sangha) in Buddhist practice.' },
-  { id: 'sor11', subjectCode: 'SOR', topic: 'Hinduism', dotPoint: 'Describe the key beliefs of Hinduism including dharma, karma, samsara and moksha.' },
-  { id: 'sor12', subjectCode: 'SOR', topic: 'Hinduism', dotPoint: 'Explain the significance of puja, pilgrimage and sacred texts in Hindu religious practice.' },
-  { id: 'sor13', subjectCode: 'SOR', topic: 'Religion & Non-Religion', dotPoint: 'Analyse the relationship between religion and science, including complementary and conflicting perspectives.' },
-  { id: 'sor14', subjectCode: 'SOR', topic: 'Religion & Non-Religion', dotPoint: 'Evaluate the ways in which religion and non-religious worldviews respond to common human questions about meaning and ethics.' },
+  {
+    "id": "ea11_1",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Reading to Write",
+    "dotPoint": "Analyse how composers use language features, form and structure to shape meaning in complex texts."
+  },
+  {
+    "id": "ea11_2",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Reading to Write",
+    "dotPoint": "Experiment with stylistic techniques and language devices in response to reading experiences."
+  },
+  {
+    "id": "ea11_3",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Module A: Contemporary Possibilities",
+    "dotPoint": "Examine how digital and multimodal texts create possibilities for new forms of storytelling."
+  },
+  {
+    "id": "ea11_4",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Module B: Close Study of Literature",
+    "dotPoint": "Engage in close analysis of a prescribed literary text to develop a personal critical perspective."
+  },
+  {
+    "id": "ea12_1",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Common Module: Texts and Human Experiences",
+    "dotPoint": "Analyse how individual and collective human experiences are represented in prescribed and related texts."
+  },
+  {
+    "id": "ea12_2",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Common Module: Texts and Human Experiences",
+    "dotPoint": "Evaluate how human qualities and emotions arising from experiences are communicated through language."
+  },
+  {
+    "id": "ea12_3",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Module A: Textual Conversations",
+    "dotPoint": "Examine the resonances and dissonances between two texts through comparative analysis."
+  },
+  {
+    "id": "ea12_4",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Module B: Critical Study of Literature",
+    "dotPoint": "Assess the textual integrity and enduring cultural value of the prescribed text."
+  },
+  {
+    "id": "ea12_5",
+    "subjectCode": "ENG_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Module C: The Craft of Writing",
+    "dotPoint": "Compose imaginative, persuasive, discursive or informative texts using refined stylistic choices."
+  },
+  {
+    "id": "es11_1",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 11",
+    "topic": "Reading to Write",
+    "dotPoint": "Explore language, identity and culture through reading and composing diverse text types."
+  },
+  {
+    "id": "es11_2",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 11",
+    "topic": "Module A: Contemporary Possibilities",
+    "dotPoint": "Analyse how multimodal and digital texts engage audiences and communicate perspectives."
+  },
+  {
+    "id": "es11_3",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 11",
+    "topic": "Module B: Close Study of Literature",
+    "dotPoint": "Conduct close reading of a literary text to articulate personal interpretations."
+  },
+  {
+    "id": "es12_1",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 12",
+    "topic": "Common Module: Texts and Human Experiences",
+    "dotPoint": "Explore how texts represent human experiences, emotions, anomalies, paradoxes and inconsistencies."
+  },
+  {
+    "id": "es12_2",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 12",
+    "topic": "Module A: Language, Identity and Culture",
+    "dotPoint": "Analyse how language shapes individual and community identity across diverse cultural contexts."
+  },
+  {
+    "id": "es12_3",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 12",
+    "topic": "Module B: Close Study of Literature",
+    "dotPoint": "Develop a sustained personal response to a prescribed prose, poetry, drama or non-fiction text."
+  },
+  {
+    "id": "es12_4",
+    "subjectCode": "ENG_STD",
+    "yearGroup": "Year 12",
+    "topic": "Module C: Craft of Writing",
+    "dotPoint": "Compose expressive and purposeful texts applying skills developed through text analysis."
+  },
+  {
+    "id": "ee1_11_1",
+    "subjectCode": "ENG_EXT1",
+    "yearGroup": "Year 11",
+    "topic": "Module: Literary Worlds",
+    "dotPoint": "Examine how literary texts construct imaginative, speculative or historical worlds."
+  },
+  {
+    "id": "ee1_12_1",
+    "subjectCode": "ENG_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Common Module: Literary Worlds",
+    "dotPoint": "Investigate how composers transform literary conventions to challenge cultural paradigms."
+  },
+  {
+    "id": "ee1_12_2",
+    "subjectCode": "ENG_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Elective: Worlds of Upheaval",
+    "dotPoint": "Analyse how literature responds to political, social and philosophical revolutions."
+  },
+  {
+    "id": "ee2_12_1",
+    "subjectCode": "ENG_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Major Work Development",
+    "dotPoint": "Formulate a rigorous proposal, draft, and refine an independent Major Work composition."
+  },
+  {
+    "id": "ee2_12_2",
+    "subjectCode": "ENG_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Reflection Statement",
+    "dotPoint": "Compose a critical Reflection Statement detailing theoretical, stylistic and investigative choices."
+  },
+  {
+    "id": "ma11_1",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Working with Functions",
+    "dotPoint": "Define function domain and range, interval notation, and sketch linear, quadratic and cubic functions."
+  },
+  {
+    "id": "ma11_2",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Trigonometry & Measure of Angles",
+    "dotPoint": "Apply sine, cosine and area rules; convert between degrees and radians and solve trigonometric equations."
+  },
+  {
+    "id": "ma11_3",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Introduction to Differentiation",
+    "dotPoint": "Understand secant lines, gradient of tangent, first principles, and apply the power rule."
+  },
+  {
+    "id": "ma11_4",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Exponential & Logarithmic Functions",
+    "dotPoint": "Graph exponential curves y = a^x and log functions; apply index laws and logarithmic identities."
+  },
+  {
+    "id": "ma11_5",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 11",
+    "topic": "Probability & Discrete Data",
+    "dotPoint": "Calculate relative frequency, conditional probability, tree diagrams and Venn diagrams."
+  },
+  {
+    "id": "ma12_1",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Graphing Techniques",
+    "dotPoint": "Apply transformations y = f(x \u00b1 c), y = a f(x) and sketch reciprocal and absolute value functions."
+  },
+  {
+    "id": "ma12_2",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Trigonometric Functions & Calculus",
+    "dotPoint": "Differentiate sin(x), cos(x), tan(x) and integrate standard trigonometric expressions."
+  },
+  {
+    "id": "ma12_3",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Differential Calculus Applications",
+    "dotPoint": "Apply product, quotient, chain rules; find stationary points, inflection points, and solve optimization."
+  },
+  {
+    "id": "ma12_4",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Integral Calculus",
+    "dotPoint": "Evaluate definite integrals, area bounded by curves, and trapezoidal rule approximations."
+  },
+  {
+    "id": "ma12_5",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Financial Mathematics",
+    "dotPoint": "Model compound interest, annuities, investments, loans and present/future value tables."
+  },
+  {
+    "id": "ma12_6",
+    "subjectCode": "MATH_ADV",
+    "yearGroup": "Year 12",
+    "topic": "Random Variables & Normal Dist",
+    "dotPoint": "Calculate mean, variance, standard deviation of continuous random variables and z-scores for Normal Distribution."
+  },
+  {
+    "id": "me1_11_1",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 11",
+    "topic": "Further Work with Functions",
+    "dotPoint": "Solve polynomial equations, remainder and factor theorems, sum and product of roots."
+  },
+  {
+    "id": "me1_11_2",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 11",
+    "topic": "Polynomials & Inequalities",
+    "dotPoint": "Graph higher degree polynomials and solve non-linear inequalities algebraically and graphically."
+  },
+  {
+    "id": "me1_11_3",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 11",
+    "topic": "Inverse Trigonometric Functions",
+    "dotPoint": "Define restriction domains, ranges, and sketch graphs of sin^-1(x), cos^-1(x) and tan^-1(x)."
+  },
+  {
+    "id": "me1_11_4",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 11",
+    "topic": "Permutations & Combinations",
+    "dotPoint": "Apply counting principles, permutations nPr, combinations nCr, and arrangements in a circle."
+  },
+  {
+    "id": "me1_12_1",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Proof by Mathematical Induction",
+    "dotPoint": "Construct formal 3-step mathematical induction proofs for series sums, divisibility, and inequalities."
+  },
+  {
+    "id": "me1_12_2",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Vectors in 2D",
+    "dotPoint": "Represent position vectors, calculate dot product, projections, and solve geometric vector proofs."
+  },
+  {
+    "id": "me1_12_3",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Trigonometric Identities & Equations",
+    "dotPoint": "Apply t-formulae (t = tan \u03b8/2) and auxiliary angle form R sin(\u03b8 \u00b1 \u03b1) to solve equations."
+  },
+  {
+    "id": "me1_12_4",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Calculus & Rates of Change",
+    "dotPoint": "Solve related rates of change problems and integrate using integration by substitution."
+  },
+  {
+    "id": "me1_12_5",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Projectile Motion",
+    "dotPoint": "Derive parametric equations of motion x(t), y(t), trajectory equation, range, maximum height and flight time."
+  },
+  {
+    "id": "me1_12_6",
+    "subjectCode": "MATH_EXT1",
+    "yearGroup": "Year 12",
+    "topic": "Binomial Distribution",
+    "dotPoint": "Calculate binomial probabilities P(X = k) = nCk p^k (1-p)^(n-k), mean np, and variance np(1-p)."
+  },
+  {
+    "id": "me2_12_1",
+    "subjectCode": "MATH_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Complex Numbers",
+    "dotPoint": "Perform arithmetic in Cartesian, mod-arg, and Euler form e^(i\u03b8); sketch loci in the Argand plane."
+  },
+  {
+    "id": "me2_12_2",
+    "subjectCode": "MATH_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "De Moivre Theorem & Roots of Unity",
+    "dotPoint": "Apply De Moivre Theorem to find powers, nth roots of unity, and solve complex polynomial equations."
+  },
+  {
+    "id": "me2_12_3",
+    "subjectCode": "MATH_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Advanced Proof & Inequalities",
+    "dotPoint": "Construct rigorous direct, contradiction, contrapositive and AM-GM inequality proofs."
+  },
+  {
+    "id": "me2_12_4",
+    "subjectCode": "MATH_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Vectors in 3D",
+    "dotPoint": "Perform 3D vector operations, cross product, vector line equations, and plane vector equations."
+  },
+  {
+    "id": "me2_12_5",
+    "subjectCode": "MATH_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Advanced Integration",
+    "dotPoint": "Integrate using partial fractions, trig substitution, reduction formulae, and integration by parts."
+  },
+  {
+    "id": "me2_12_6",
+    "subjectCode": "MATH_EXT2",
+    "yearGroup": "Year 12",
+    "topic": "Mechanics & Differential Equations",
+    "dotPoint": "Model resisted motion (v dv/dx, dv/dt = f(v)), simple harmonic motion, and circular motion."
+  },
+  {
+    "id": "ch11_1",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 11",
+    "topic": "Module 1: Properties & Structure of Matter",
+    "dotPoint": "Separate mixtures based on physical properties, calculate isotopic abundances and atomic mass."
+  },
+  {
+    "id": "ch11_2",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 11",
+    "topic": "Module 1: Properties & Structure of Matter",
+    "dotPoint": "Compare ionic, covalent molecular, covalent network and metallic bonding, Lewis dot diagrams and VSEPR shapes."
+  },
+  {
+    "id": "ch11_3",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 11",
+    "topic": "Module 2: Quantitative Chemistry",
+    "dotPoint": "Perform mole calculations, empirical/molecular formula, stoichometry, gas laws (PV = nRT) and molar concentration."
+  },
+  {
+    "id": "ch11_4",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 11",
+    "topic": "Module 3: Reactive Chemistry",
+    "dotPoint": "Construct metal activity series, write half-equations for galvanic cells, and balance net ionic equations."
+  },
+  {
+    "id": "ch11_5",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 11",
+    "topic": "Module 4: Drivers of Reactions",
+    "dotPoint": "Calculate enthalpy change (q = m c \u0394T, Hess Law), entropy \u0394S, and Gibbs Free Energy (\u0394G = \u0394H - T\u0394S) for spontaneity."
+  },
+  {
+    "id": "ch12_1",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 12",
+    "topic": "Module 5: Equilibrium & Acid Reactions",
+    "dotPoint": "Apply Le Chatelier Principle to collision theory, equilibrium constant Keq, and solubility product Ksp."
+  },
+  {
+    "id": "ch12_2",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 12",
+    "topic": "Module 6: Acid/Base Reactions",
+    "dotPoint": "Analyse Bronsted-Lowry theory, pH, Ka, Kb, volumetric titrations, indicators, and buffer solutions."
+  },
+  {
+    "id": "ch12_3",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 12",
+    "topic": "Module 7: Organic Chemistry",
+    "dotPoint": "IUPAC nomenclature for alkanes, alkenes, alkynes, haloalkanes, alcohols, aldehydes, ketones, carboxylic acids, esters, amines."
+  },
+  {
+    "id": "ch12_4",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 12",
+    "topic": "Module 7: Organic Chemistry",
+    "dotPoint": "Synthesise polymers (addition vs condensation) and evaluate organic reaction pathways for primary/secondary alcohols."
+  },
+  {
+    "id": "ch12_5",
+    "subjectCode": "CHEM",
+    "yearGroup": "Year 12",
+    "topic": "Module 8: Applying Chemical Ideas",
+    "dotPoint": "Analyse qualitative tests for inorganic cations/anions, flame tests, NMR spectroscopy, IR spectroscopy, and Mass Spectrometry."
+  },
+  {
+    "id": "ph11_1",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 11",
+    "topic": "Module 1: Kinematics",
+    "dotPoint": "Analyse 1D and 2D motion graphs (s-t, v-t, a-t), vector addition/subtraction, and relative velocity."
+  },
+  {
+    "id": "ph11_2",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 11",
+    "topic": "Module 2: Dynamics",
+    "dotPoint": "Apply Newton laws of motion, momentum conservation, impulse (J = F \u0394t), work, energy, power, and friction on inclines."
+  },
+  {
+    "id": "ph11_3",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 11",
+    "topic": "Module 3: Waves & Thermodynamics",
+    "dotPoint": "Analyse transverse/longitudinal waves, Snell Law of refraction, total internal reflection, interference, and specific heat capacity."
+  },
+  {
+    "id": "ph11_4",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 11",
+    "topic": "Module 4: Electricity & Magnetism",
+    "dotPoint": "Apply Coulomb Law, electric field intensity E = F/q, Ohm Law, DC series/parallel circuits, and magnetic force F = qvB sin \u03b8."
+  },
+  {
+    "id": "ph12_1",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 12",
+    "topic": "Module 5: Advanced Mechanics",
+    "dotPoint": "Solve 2D projectile motion problems, uniform circular motion (Fc = mv^2/r), torque, and Kepler Laws of planetary motion."
+  },
+  {
+    "id": "ph12_2",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 12",
+    "topic": "Module 6: Electromagnetism",
+    "dotPoint": "Analyse motor effect (F = BIL sin \u03b8), Faraday Law of induction, Lenz Law, AC/DC motors, generators, and transformers."
+  },
+  {
+    "id": "ph12_3",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 12",
+    "topic": "Module 7: Nature of Light",
+    "dotPoint": "Examine Maxwell electromagnetic wave theory, Young Double Slit interference, Photoelectric Effect (E = hf), and Special Relativity."
+  },
+  {
+    "id": "ph12_4",
+    "subjectCode": "PHYS",
+    "yearGroup": "Year 12",
+    "topic": "Module 8: From the Universe to Atom",
+    "dotPoint": "Investigate Thomson, Rutherford, Bohr atomic models, De Broglie matter waves, Balmer series, nuclear decay, and Standard Model of Quarks."
+  },
+  {
+    "id": "bi11_1",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 11",
+    "topic": "Module 1: Cells as Basis of Life",
+    "dotPoint": "Examine organelle structures under light/electron microscopes, fluid mosaic membrane model, passive/active transport."
+  },
+  {
+    "id": "bi11_2",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 11",
+    "topic": "Module 1: Cells as Basis of Life",
+    "dotPoint": "Investigate enzyme action, lock-and-key vs induced fit models, and factors affecting enzyme activity (pH, temp, concentration)."
+  },
+  {
+    "id": "bi11_3",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 11",
+    "topic": "Module 2: Organisation of Living Things",
+    "dotPoint": "Compare nutrient/gas exchange in autotrophs vs heterotrophs, open vs closed circulatory systems, xylem/phloem transport."
+  },
+  {
+    "id": "bi11_4",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 11",
+    "topic": "Module 3: Biological Diversity",
+    "dotPoint": "Analyse selection pressures, adaptations (structural, physiological, behavioural), Darwin-Wallace theory of evolution by natural selection."
+  },
+  {
+    "id": "bi11_5",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 11",
+    "topic": "Module 4: Ecosystem Dynamics",
+    "dotPoint": "Investigate ecological niches, food webs, biomass pyramids, radiometric dating, and human impact on ecosystems."
+  },
+  {
+    "id": "bi12_1",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 12",
+    "topic": "Module 5: Heredity",
+    "dotPoint": "Analyse sexual vs asexual reproduction, mitosis vs meiosis, DNA replication, polypeptide synthesis (transcription/translation), and pedigree charts."
+  },
+  {
+    "id": "bi12_2",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 12",
+    "topic": "Module 6: Genetic Change",
+    "dotPoint": "Investigate point/chromosomal mutations, non-coding DNA, gene flow, genetic drift, recombinant DNA technology, and CRISPR."
+  },
+  {
+    "id": "bi12_3",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 12",
+    "topic": "Module 7: Infectious Disease",
+    "dotPoint": "Describe pathogen transmission (prions, viruses, bacteria, fungi, protozoa), plant/animal immune responses, 1st/2nd/3rd lines of defence."
+  },
+  {
+    "id": "bi12_4",
+    "subjectCode": "BIOL",
+    "yearGroup": "Year 12",
+    "topic": "Module 8: Non-infectious Disease",
+    "dotPoint": "Analyse causes and effects of non-infectious diseases (genetic, environmental, nutritional), epidemiology, and hearing/visual assistance tech."
+  },
+  {
+    "id": "ec11_1",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 11",
+    "topic": "Module 1: Intro to Economics",
+    "dotPoint": "Explain economic problem of scarcity, opportunity cost, production possibility frontiers (PPF), and future implications of choices."
+  },
+  {
+    "id": "ec11_2",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 11",
+    "topic": "Module 2: Consumers & Business",
+    "dotPoint": "Analyse consumer sovereignty, MPC/MPS, business decision-making, production costs, and economies/diseconomies of scale."
+  },
+  {
+    "id": "ec11_3",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 11",
+    "topic": "Module 3: Markets & Demand/Supply",
+    "dotPoint": "Determine market equilibrium, price mechanism, price elasticity of demand/supply, market structures (pure competition to monopoly)."
+  },
+  {
+    "id": "ec11_4",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 11",
+    "topic": "Module 4: Labour Markets",
+    "dotPoint": "Examine demand/supply for labour, wage outcomes, enterprise bargaining, awards, and trade union/employer association roles."
+  },
+  {
+    "id": "ec11_5",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 11",
+    "topic": "Module 5: Financial Markets & Government",
+    "dotPoint": "Analyse money market, RBA cash rate policy, government re-allocation of resources, taxation types, and budget stances."
+  },
+  {
+    "id": "ec12_1",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 12",
+    "topic": "Topic 1: The Global Economy",
+    "dotPoint": "Examine gross world product, globalisation, trade flows, financial flows, protectionism, trade agreements (WTO, ASEAN, USMCA)."
+  },
+  {
+    "id": "ec12_2",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 12",
+    "topic": "Topic 2: Australia in the Global Economy",
+    "dotPoint": "Analyse Australia Balance of Payments (Current Account CAD, Capital/Financial Account), exchange rates, terms of trade, and foreign debt."
+  },
+  {
+    "id": "ec12_3",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 12",
+    "topic": "Topic 3: Economic Issues",
+    "dotPoint": "Evaluate economic growth, price stability (2-3% inflation target), unemployment types (cyclical, structural), income inequality (Lorenz curve/Gini)."
+  },
+  {
+    "id": "ec12_4",
+    "subjectCode": "ECON",
+    "yearGroup": "Year 12",
+    "topic": "Topic 4: Economic Policies & Management",
+    "dotPoint": "Assess macroeconomic policies (Monetary Policy & Fiscal Policy stance) and microeconomic reform (deregulation, privatisation)."
+  },
+  {
+    "id": "bs11_1",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 11",
+    "topic": "Topic 1: Nature of Business",
+    "dotPoint": "Examine role of business, classification by size/industry/legal structure, and business life cycle stages (establishment to post-maturity)."
+  },
+  {
+    "id": "bs11_2",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 11",
+    "topic": "Topic 2: Business Management",
+    "dotPoint": "Analyse classical, behavioural and contingency management approaches, POLC functions, and managing change."
+  },
+  {
+    "id": "bs11_3",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 11",
+    "topic": "Topic 3: Business Planning",
+    "dotPoint": "Prepare SME business plan components: executive summary, SWOT, market analysis, financial planning, and break-even calculation."
+  },
+  {
+    "id": "bs12_1",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 12",
+    "topic": "Topic 1: Operations",
+    "dotPoint": "Evaluate operations strategies: performance objectives (quality, speed, cost), supply chain management, inventory (JIT), outsourcing."
+  },
+  {
+    "id": "bs12_2",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 12",
+    "topic": "Topic 2: Marketing",
+    "dotPoint": "Analyse marketing processes (situational analysis, market research, target market) and 7Ps marketing strategies."
+  },
+  {
+    "id": "bs12_3",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 12",
+    "topic": "Topic 3: Finance",
+    "dotPoint": "Interpret financial statements (Balance Sheet, Income Statement, Cash Flow) and ratio analysis (liquidity, gearing, profitability, efficiency)."
+  },
+  {
+    "id": "bs12_4",
+    "subjectCode": "BUSS",
+    "yearGroup": "Year 12",
+    "topic": "Topic 4: Human Resources",
+    "dotPoint": "Evaluate HR processes (acquisition, development, maintenance, separation), workplace disputes, performance management, and HR effectiveness indicators."
+  },
+  {
+    "id": "ls11_1",
+    "subjectCode": "LEGL",
+    "yearGroup": "Year 11",
+    "topic": "Part I: The Legal System",
+    "dotPoint": "Distinguish between justice, fairness, equality; legal sources (common law, statute law, customary law, international law)."
+  },
+  {
+    "id": "ls11_2",
+    "subjectCode": "LEGL",
+    "yearGroup": "Year 11",
+    "topic": "Part II: Individual & Law",
+    "dotPoint": "Examine rights and responsibilities, dispute resolution mechanisms (ADR, tribunals, courts), and law enforcement agencies."
+  },
+  {
+    "id": "ls11_3",
+    "subjectCode": "LEGL",
+    "yearGroup": "Year 11",
+    "topic": "Part III: Law in Practice",
+    "dotPoint": "Investigate a contemporary legal issue evaluating effectiveness of legal and non-legal responses in achieving justice."
+  },
+  {
+    "id": "ls12_1",
+    "subjectCode": "LEGL",
+    "yearGroup": "Year 12",
+    "topic": "Core 1: Crime",
+    "dotPoint": "Analyse nature of crime (actus reus, mens rea), police powers, criminal trial process, sentencing guidelines, and post-sentencing options."
+  },
+  {
+    "id": "ls12_2",
+    "subjectCode": "LEGL",
+    "yearGroup": "Year 12",
+    "topic": "Core 2: Human Rights",
+    "dotPoint": "Evaluate domestic (Constitution, statute, common law) and international (UN, ICC, treaties) human rights enforcement mechanisms."
+  },
+  {
+    "id": "ls12_3",
+    "subjectCode": "LEGL",
+    "yearGroup": "Year 12",
+    "topic": "Option: Family / Shelter / Consumers",
+    "dotPoint": "Evaluate legal responses to contemporary family issues, consumer protection, or shelter provision."
+  },
+  {
+    "id": "mh11_1",
+    "subjectCode": "HIST_MOD",
+    "yearGroup": "Year 11",
+    "topic": "Investigating Modern History",
+    "dotPoint": "Apply historical inquiry methods, evaluate primary/secondary source reliability, perspective, usefuless, and contestability."
+  },
+  {
+    "id": "mh11_2",
+    "subjectCode": "HIST_MOD",
+    "yearGroup": "Year 11",
+    "topic": "Historical Investigation",
+    "dotPoint": "Plan and construct an independent historical investigation on a modern historical event or personality."
+  },
+  {
+    "id": "mh12_1",
+    "subjectCode": "HIST_MOD",
+    "yearGroup": "Year 12",
+    "topic": "Core: Power & Authority in Modern World",
+    "dotPoint": "Analyse rise of fascist dictatorship in Weimar Germany, Nazi consolidation of power, totalitarian control, and WWII impact."
+  },
+  {
+    "id": "mh12_2",
+    "subjectCode": "HIST_MOD",
+    "yearGroup": "Year 12",
+    "topic": "National Studies (Russia/USA/China)",
+    "dotPoint": "Examine political, social, economic developments and ideology in Bolshevik Russia, USA 1919-1941, or Cultural Revolution China."
+  },
+  {
+    "id": "mh12_3",
+    "subjectCode": "HIST_MOD",
+    "yearGroup": "Year 12",
+    "topic": "Peace & Conflict (WWI / Cold War)",
+    "dotPoint": "Analyse alliance systems, Western Front trench warfare, home front mobilization, or Cold War crisis events."
+  },
+  {
+    "id": "ah11_1",
+    "subjectCode": "HIST_ANC",
+    "yearGroup": "Year 11",
+    "topic": "Investigating Ancient History",
+    "dotPoint": "Analyse archaeological and written sources, preservation issues, ethical conservation, and historical reconstruction."
+  },
+  {
+    "id": "ah11_2",
+    "subjectCode": "HIST_ANC",
+    "yearGroup": "Year 11",
+    "topic": "Ancient Case Studies",
+    "dotPoint": "Investigate key ancient sites, burials, or discoveries (e.g. Tutankhamun, Old Kingdom Pyramids, Troy)."
+  },
+  {
+    "id": "ah12_1",
+    "subjectCode": "HIST_ANC",
+    "yearGroup": "Year 12",
+    "topic": "Core: Cities of Vesuvius (Pompeii & Herculaneum)",
+    "dotPoint": "Examine eruption evidence, streetscapes, public buildings, private houses, economy, religion, and ethical conservation issues."
+  },
+  {
+    "id": "ah12_2",
+    "subjectCode": "HIST_ANC",
+    "yearGroup": "Year 12",
+    "topic": "Personalities in their Times",
+    "dotPoint": "Evaluate political, military, cultural achievements and historiography of key personalities (e.g. Hatshepsut, Julius Caesar, Pericles)."
+  },
+  {
+    "id": "ah12_3",
+    "subjectCode": "HIST_ANC",
+    "yearGroup": "Year 12",
+    "topic": "Ancient Societies (Sparta/Rome/Egypt)",
+    "dotPoint": "Analyse social structure, political organisation, military system, economy, and religion of the chosen ancient society."
+  },
+  {
+    "id": "se11_1",
+    "subjectCode": "SOFT_ENG",
+    "yearGroup": "Year 11",
+    "topic": "Programming Fundamentals",
+    "dotPoint": "Write clean code using sequence, selection (if-else, switch), iteration (for, while), functions, arrays, and algorithms."
+  },
+  {
+    "id": "se11_2",
+    "subjectCode": "SOFT_ENG",
+    "yearGroup": "Year 11",
+    "topic": "Software Hardware Options",
+    "dotPoint": "Explain relationship between hardware architecture, CPU registers, memory (RAM/ROM), fetch-execute cycle, and compilers."
+  },
+  {
+    "id": "se12_1",
+    "subjectCode": "SOFT_ENG",
+    "yearGroup": "Year 12",
+    "topic": "Software Development Approaches",
+    "dotPoint": "Compare Waterfall, Agile, Lean, RAD, and Prototyping software engineering lifecycles."
+  },
+  {
+    "id": "se12_2",
+    "subjectCode": "SOFT_ENG",
+    "yearGroup": "Year 12",
+    "topic": "OOP & Data Structures",
+    "dotPoint": "Implement Classes, Inheritance, Encapsulation, Polymorphism, Stacks, Queues, Linked Lists, Trees, and Big-O complexity."
+  },
+  {
+    "id": "se12_3",
+    "subjectCode": "SOFT_ENG",
+    "yearGroup": "Year 12",
+    "topic": "Software Project Engineering",
+    "dotPoint": "Plan, test (unit/integration/system testing), debug, and deploy a full-scale software project."
+  },
+  {
+    "id": "engs11_1",
+    "subjectCode": "ENG_STUD",
+    "yearGroup": "Year 11",
+    "topic": "Engineering Fundamentals",
+    "dotPoint": "Apply concurrent force systems, vector resolution, moments of force, stress/strain equations (\u03c3 = F/A, \u03b5 = \u0394L/L)."
+  },
+  {
+    "id": "engs11_2",
+    "subjectCode": "ENG_STUD",
+    "yearGroup": "Year 11",
+    "topic": "Engineering Products & Tools",
+    "dotPoint": "Examine materials testing (tensile test, hardness test), heat treatment processes, and engineering drawing standards."
+  },
+  {
+    "id": "engs12_1",
+    "subjectCode": "ENG_STUD",
+    "yearGroup": "Year 12",
+    "topic": "Civil & Aeronautical Engineering",
+    "dotPoint": "Analyse truss structures (method of sections/joints), Bernoulli principle, lift/drag forces, and aircraft propulsion systems."
+  },
+  {
+    "id": "engs12_2",
+    "subjectCode": "ENG_STUD",
+    "yearGroup": "Year 12",
+    "topic": "Telecommunications & Biomedical",
+    "dotPoint": "Evaluate satellite communications, fibre optics, digital signal processing, biomaterials, and prosthetic mechanics."
+  },
+  {
+    "id": "ipt11_1",
+    "subjectCode": "IPT",
+    "yearGroup": "Year 11",
+    "topic": "Introduction to Information Systems",
+    "dotPoint": "Describe 7 information processes (collecting, organising, analysing, storing, processing, transmitting, displaying)."
+  },
+  {
+    "id": "ipt11_2",
+    "subjectCode": "IPT",
+    "yearGroup": "Year 11",
+    "topic": "Tools for Information Systems",
+    "dotPoint": "Design Data Flow Diagrams (DFDs), System Flowcharts, Structure Charts, and Data Dictionaries."
+  },
+  {
+    "id": "ipt12_1",
+    "subjectCode": "IPT",
+    "yearGroup": "Year 12",
+    "topic": "Project Management & Databases",
+    "dotPoint": "Design relational database schemas, 1NF/2NF/3NF normalisation, SQL SELECT queries, and Gantt chart scheduling."
+  },
+  {
+    "id": "ipt12_2",
+    "subjectCode": "IPT",
+    "yearGroup": "Year 12",
+    "topic": "Communication Systems",
+    "dotPoint": "Analyse OSI 7-layer model, TCP/IP, network topologies (star, mesh, bus), wireless transmission, and encryption methods."
+  },
+  {
+    "id": "pd11_1",
+    "subjectCode": "PDHPE",
+    "yearGroup": "Year 11",
+    "topic": "Core 1: Better Health for Individuals",
+    "dotPoint": "Examine meanings of health, dynamic nature of health, perceptions of health, and social determinants."
+  },
+  {
+    "id": "pd11_2",
+    "subjectCode": "PDHPE",
+    "yearGroup": "Year 11",
+    "topic": "Core 2: The Body in Motion",
+    "dotPoint": "Analyse anatomical structure of skeletal/muscular systems, cardiorespiratory system, and biomechanical principles."
+  },
+  {
+    "id": "pd12_1",
+    "subjectCode": "PDHPE",
+    "yearGroup": "Year 12",
+    "topic": "Core 1: Health Priorities in Australia",
+    "dotPoint": "Analyse epidemiology of cardiovascular disease, cancer, diabetes, Indigenous health inequities, and Ottawa Charter action areas."
+  },
+  {
+    "id": "pd12_2",
+    "subjectCode": "PDHPE",
+    "yearGroup": "Year 12",
+    "topic": "Core 2: Factors Affecting Performance",
+    "dotPoint": "Evaluate energy systems (ATP-PC, Lactic Acid, Aerobic), training principles, nutrition, psychology, and recovery strategies."
+  },
+  {
+    "id": "sor11_1",
+    "subjectCode": "SOR",
+    "yearGroup": "Year 11",
+    "topic": "Nature of Religion & Belief Systems",
+    "dotPoint": "Analyse characteristics of religion (beliefs/believers, sacred texts, ethics, rituals/ceremonies) and the Dreaming."
+  },
+  {
+    "id": "sor11_2",
+    "subjectCode": "SOR",
+    "yearGroup": "Year 11",
+    "topic": "Religious Tradition Studies (Y11)",
+    "dotPoint": "Examine historical context, principal beliefs, sacred texts and core ethical teachings of chosen religious traditions."
+  },
+  {
+    "id": "sor12_1",
+    "subjectCode": "SOR",
+    "yearGroup": "Year 12",
+    "topic": "Religion and Belief Systems in Australia post-1945",
+    "dotPoint": "Analyse religious landscape changes post-1945, immigration impact, denominational switching, secularism, and Native Title."
+  },
+  {
+    "id": "sor12_2",
+    "subjectCode": "SOR",
+    "yearGroup": "Year 12",
+    "topic": "Religious Depth Studies (Y12)",
+    "dotPoint": "Investigate significant people/ideas, bioethics/environmental ethics, and significant practices in chosen religious traditions."
+  }
 ];
