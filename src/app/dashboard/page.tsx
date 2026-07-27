@@ -25,6 +25,7 @@ import {
 import { useRouter } from 'next/navigation';
 import AddAssessmentModal from '@/components/dashboard/AddAssessmentModal';
 import AddNoteModal from '@/components/dashboard/AddNoteModal';
+import ManageSubjectsModal from '@/components/dashboard/ManageSubjectsModal';
 import { Assessment, Note, StudentSubject, Mark } from '@/lib/types';
 import { format, isToday, isBefore, addDays } from 'date-fns';
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
   // Modals state
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
+  const [isManageSubjectsOpen, setIsManageSubjectsOpen] = useState(false);
 
   // Data state
   const [loadingData, setLoadingData] = useState(true);
@@ -311,12 +313,19 @@ export default function Dashboard() {
         {/* Left Column (Span 2): Subject Overview Cards */}
         <div className="lg:col-span-2 space-y-6">
           <div>
-            <h2 className="text-lg font-bold text-slate-200 tracking-wide border-b border-indigo-950/20 pb-2 flex items-center justify-between">
-              <span>HSC Subject Cards</span>
-              <span className="text-[10px] text-slate-500 bg-slate-900/40 border border-indigo-950/15 px-2 py-0.5 rounded-full">
-                Units of Study
-              </span>
-            </h2>
+            <div className="border-b border-indigo-950/20 pb-2 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-200 tracking-wide">
+                HSC Subject Cards ({enrolledSubjects.length})
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsManageSubjectsOpen(true)}
+                className="px-3 py-1 bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/25 text-emerald-400 font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add / Edit Subjects</span>
+              </button>
+            </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               {enrolledSubjects.map((sub) => {
@@ -507,6 +516,12 @@ export default function Dashboard() {
           router.refresh();
         }}
         subjects={enrolledSubjects}
+      />
+
+      {/* Manage Subjects Modal component */}
+      <ManageSubjectsModal
+        isOpen={isManageSubjectsOpen}
+        onClose={() => setIsManageSubjectsOpen(false)}
       />
     </AppLayout>
   );

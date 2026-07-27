@@ -17,10 +17,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#070e17]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
-          <p className="text-slate-400 text-xs tracking-wider uppercase font-semibold">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <p className="text-slate-500 dark:text-slate-400 text-xs tracking-wider uppercase font-semibold">
             Loading GirraStudy...
           </p>
         </div>
@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-[#070e17] text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Sidebar - Desktop Only */}
       <Sidebar className="hidden md:flex shrink-0" />
 
