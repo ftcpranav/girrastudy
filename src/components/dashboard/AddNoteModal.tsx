@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
-import { X, Loader2, FileText, Link as LinkIcon, PlayCircle, BookOpen, FileCheck } from 'lucide-react';
+import { X, Loader2, FileText, Link as LinkIcon, PlayCircle, BookOpen, FileCheck, Users, Sparkles } from 'lucide-react';
 import { StudentSubject } from '@/lib/types';
 
 interface AddNoteModalProps {
@@ -38,6 +38,8 @@ export default function AddNoteModal({
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
+  const [aiParsing, setAiParsing] = useState(false);
 
   if (!isOpen) return null;
 
@@ -87,11 +89,11 @@ export default function AddNoteModal({
         }
       }
 
-      const { error } = await supabase.from('notes').insert({
+      const { data: insertedNote, error } = await supabase.from('notes').insert({
         user_id: user.id,
         subject_id: subjectId,
         title,
-        topic: topic.replace('#', '').trim(), // Clean topic tag
+        topic: topic.replace('#', '').trim(),
         note_type: noteType,
         content_text: finalContent || null,
         url: finalUrl || null,
@@ -99,11 +101,29 @@ export default function AddNoteModal({
         textbook_chapter: tbChapter || null,
         textbook_page: tbPage || null,
         is_pinned: false,
-      });
+        is_public: isPublic,
+      }).select().single();
 
       if (error) {
         setErrorMsg(error.message);
       } else {
+        // If public and has text content, kick off AI parsing in background
+        if (isPublic && insertedNote && (finalContent || finalUrl)) {
+          setAiParsing(true);
+          const parseContent = finalContent || `Title: ${title}\nTopic: ${topic}\nURL: ${finalUrl}`;
+          try {
+            await fetch('/api/ai/parse-note', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ noteId: insertedNote.id, content: parseContent }),
+            });
+          } catch (_) {
+            // AI parse failure is non-blocking — note still saved successfully
+          } finally {
+            setAiParsing(false);
+          }
+        }
+
         onSuccess();
         // Reset states
         setTitle('');
@@ -114,6 +134,7 @@ export default function AddNoteModal({
         setTextbookTitle('');
         setTextbookChapter('');
         setTextbookPage('');
+        setIsPublic(false);
         if (editorRef.current) editorRef.current.innerHTML = '';
         onClose();
       }
@@ -351,6 +372,48 @@ export default function AddNoteModal({
             </div>
           )}
 
+          {/* Share with Community Toggle */}
+          <div
+            className={`rounded-2xl p-4 border transition-all ${
+              isPublic
+                ? 'bg-emerald-500/10 border-emerald-500/30'
+                : 'bg-slate-900/40 border-slate-800'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-xl ${isPublic ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-500'}`}>
+                  <Users className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-200">Share with GirraStudy Community</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Your note will appear in the Community Hub. AI will automatically extract key takeaways, terms, and flashcards.
+                  </p>
+                  {isPublic && (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <Sparkles className="h-3 w-3 text-emerald-400" />
+                      <span className="text-[10px] font-bold text-emerald-400">AI note parsing will run automatically after saving</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPublic((v) => !v)}
+                className={`relative shrink-0 w-11 h-6 rounded-full transition-colors cursor-pointer ${
+                  isPublic ? 'bg-emerald-500' : 'bg-slate-700'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    isPublic ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
           {/* Buttons */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-indigo-950/10">
             <button
@@ -362,16 +425,15 @@ export default function AddNoteModal({
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl transition-all border border-violet-500/35 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              disabled={loading || aiParsing}
+              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold text-xs rounded-xl transition-all border border-emerald-500/35 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
-                <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                <><Loader2 className="h-4 w-4 animate-spin" /><span>Saving…</span></>
+              ) : aiParsing ? (
+                <><Sparkles className="h-4 w-4 animate-pulse" /><span>AI Parsing…</span></>
               ) : (
-                <>
-                  <FileText className="h-4 w-4" />
-                  <span>Save Note</span>
-                </>
+                <><FileText className="h-4 w-4" /><span>Save Note{isPublic ? ' & Share' : ''}</span></>
               )}
             </button>
           </div>

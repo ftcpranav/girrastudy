@@ -5,6 +5,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { SYLLABUS_DATA } from '@/lib/syllabusData';
+import CommunityHubTab from '@/components/notes/CommunityHubTab';
 import {
   BookOpen,
   ExternalLink,
@@ -18,9 +19,10 @@ import {
   AlertCircle,
   MinusCircle,
   Search,
+  Users,
 } from 'lucide-react';
 
-type TabType = 'past_papers' | 'syllabus';
+type TabType = 'past_papers' | 'syllabus' | 'community';
 type DotStatus = 'red' | 'yellow' | 'green';
 
 // Key used to store progress in preferences_json
@@ -275,6 +277,7 @@ export default function ResourcesPage() {
           {([
             { id: 'past_papers', label: 'Past Papers' },
             { id: 'syllabus', label: 'Syllabus Tracker' },
+            { id: 'community', label: '🌐 Community Hub' },
           ] as { id: TabType; label: string }[]).map((tab) => (
             <button
               key={tab.id}
@@ -594,6 +597,13 @@ export default function ResourcesPage() {
               No dot points match your search.
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── TAB 3: COMMUNITY HUB ────────────────────────────── */}
+      {activeTab === 'community' && (
+        <div className="animate-fade-in">
+          <CommunityHubTab currentUserId={user?.id ?? null} />
         </div>
       )}
     </AppLayout>
