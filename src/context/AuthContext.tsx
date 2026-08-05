@@ -22,10 +22,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [enrolledSubjects, setEnrolledSubjects] = useState<StudentSubject[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   const fetchProfileAndSubjects = async (userId: string) => {
+    setProfileLoading(true);
     try {
       // 1. Fetch profile using maybeSingle
       let { data: profileData } = await supabase
@@ -64,6 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       console.error('Unexpected error in fetchProfileAndSubjects:', err);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -102,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setProfile(null);
           setEnrolledSubjects([]);
+          setProfileLoading(false);
         }
         setLoading(false);
       }
@@ -114,7 +119,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Onboarding & Route Protection logic
   useEffect(() => {
-    if (loading) return;
+    // Wait until both initial auth check and profile fetching complete
+    if (loading || (user && profileLoading)) return;
 
     const isPublicRoute = pathname === '/' || pathname === '/login';
     const isOnboardingRoute = pathname === '/onboarding';
@@ -125,10 +131,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/');
       }
     } else {
-      // Authenticated user checks
+      // User is authenticated. Check if onboarding is truly incomplete.
+      // Brand-new account only needs onboarding if year_group is missing AND they have no enrolled subjects.
       const hasCompletedOnboarding =
-        Boolean(profile?.year_group) &&
-        enrolledSubjects.length >= 2;
+        Boolean(profile?.year_group) ||
+        enrolledSubjects.length > 0 ||
+        profile?.role === 'admin';
 
       if (!hasCompletedOnboarding) {
         // Redirect to onboarding if incomplete
@@ -136,13 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           router.push('/onboarding');
         }
       } else {
-        // Prevent access to landing or onboarding once completed
+        // Prevent access to landing or onboarding once logged in / onboarded
         if (isPublicRoute || isOnboardingRoute) {
           router.push('/dashboard');
         }
       }
     }
-  }, [user, profile, enrolledSubjects, loading, pathname, router]);
+  }, [user, profile, enrolledSubjects, loading, profileLoading, pathname, router]);
 
   const signOut = async () => {
     setLoading(true);
