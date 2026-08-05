@@ -238,10 +238,15 @@ export default function OnboardingPage() {
     setErrorMsg('');
 
     try {
-      // Ensure year_group is set (in case update in step 1 was delayed)
-      if (yearGroup) {
-        await supabase.from('users').update({ year_group: yearGroup, full_name: fullName }).eq('id', currentUserId);
-      }
+      // Ensure profile row exists in public.users before inserting FK dependencies
+      const userEmail = session.user.email || 'student@girrastudy.com';
+      await supabase.from('users').upsert({
+        id: currentUserId,
+        email: userEmail,
+        full_name: fullName || session.user.user_metadata?.full_name || 'Student',
+        year_group: yearGroup || 'Year 12',
+        role: 'student',
+      });
 
       // Delete existing enrolments (idempotent re-entry)
       await supabase.from('student_subjects').delete().eq('user_id', currentUserId);

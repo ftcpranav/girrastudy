@@ -248,6 +248,9 @@ ALTER TABLE public.ai_note_metadata ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "users_select_own" ON public.users
   FOR SELECT USING (auth.uid() = id);
 
+CREATE POLICY "users_insert_own" ON public.users
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
 CREATE POLICY "users_update_own" ON public.users
   FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
