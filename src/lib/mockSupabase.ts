@@ -101,15 +101,16 @@ class QueryBuilder {
   private isUpdate: boolean = false;
   private updateData: any = null;
   private isDelete: boolean = false;
+  private isUpsert: boolean = false;
+  private upsertData: any = null;
+  private wantsSelect: boolean = false;
 
   constructor(table: string) {
     this.table = table;
   }
 
-  select(fields = '*', options?: any) {
-    this.selectFields = fields;
-    return this;
-  }
+
+
 
   eq(column: string, value: any) {
     this.filters.push((item) => item[column] === value);
@@ -178,6 +179,23 @@ class QueryBuilder {
     return this;
   }
 
+  // Upsert operation (deferred)
+  upsert(upsertData: any | any[]) {
+    this.isUpsert = true;
+    this.upsertData = upsertData;
+    return this;
+  }
+
+  // Select after insert/update — marks that caller wants data back
+  select(_fields = '*', _options?: any) {
+    if (this.isInsert || this.isUpdate || this.isUpsert) {
+      this.wantsSelect = true;
+    } else {
+      this.selectFields = _fields;
+    }
+    return this;
+  }
+
   // Update operation (deferred)
   update(updateData: any) {
     this.isUpdate = true;
@@ -205,7 +223,6 @@ class QueryBuilder {
     // Handle cascading triggers / auto creations
     for (const row of newRows) {
       if (this.table === 'assessments' && row.status === 'Overdue') {
-        // Automatically insert notification
         const notifications = db.getTableData('notifications');
         db.setTableData('notifications', [
           ...notifications,
@@ -222,7 +239,32 @@ class QueryBuilder {
       }
     }
 
-    return { data: Array.isArray(this.insertData) ? newRows : newRows[0], error: null };
+    const result = Array.isArray(this.insertData) ? newRows : newRows[0];
+    return { data: result, error: null };
+  }
+
+  private executeUpsert(): { data: any | any[]; error: any } {
+    const current = db.getTableData(this.table);
+    const rows = Array.isArray(this.upsertData) ? this.upsertData : [this.upsertData];
+    let updatedList = [...current];
+    const resultRows: any[] = [];
+    for (const row of rows) {
+      const idx = updatedList.findIndex((r) => r.id === row.id);
+      const newRow = {
+        id: row.id || `mock-${this.table}-${Math.random().toString(36).substr(2, 9)}`,
+        created_at: new Date().toISOString(),
+        ...row,
+        updated_at: new Date().toISOString(),
+      };
+      if (idx !== -1) {
+        updatedList[idx] = newRow;
+      } else {
+        updatedList.push(newRow);
+      }
+      resultRows.push(newRow);
+    }
+    db.setTableData(this.table, updatedList);
+    return { data: Array.isArray(this.upsertData) ? resultRows : resultRows[0], error: null };
   }
 
   private executeUpdate(): { data: any[]; error: any } {
@@ -309,6 +351,8 @@ class QueryBuilder {
   async then(resolve: any) {
     if (this.isInsert) {
       resolve(this.executeInsert());
+    } else if (this.isUpsert) {
+      resolve(this.executeUpsert());
     } else if (this.isUpdate) {
       resolve(this.executeUpdate());
     } else if (this.isDelete) {
@@ -325,6 +369,11 @@ class QueryBuilder {
       const rows = Array.isArray(res.data) ? res.data : [res.data];
       return { data: rows[0] || null, error: rows[0] ? null : new Error('No record inserted') };
     }
+    if (this.isUpsert) {
+      const res = this.executeUpsert();
+      const rows = Array.isArray(res.data) ? res.data : [res.data];
+      return { data: rows[0] || null, error: null };
+    }
     if (this.isUpdate) {
       const res = this.executeUpdate();
       return { data: res.data[0] || null, error: res.data[0] ? null : new Error('No record found') };
@@ -340,6 +389,11 @@ class QueryBuilder {
   async maybeSingle() {
     if (this.isInsert) {
       const res = this.executeInsert();
+      const rows = Array.isArray(res.data) ? res.data : [res.data];
+      return { data: rows[0] || null, error: null };
+    }
+    if (this.isUpsert) {
+      const res = this.executeUpsert();
       const rows = Array.isArray(res.data) ? res.data : [res.data];
       return { data: rows[0] || null, error: null };
     }
@@ -372,6 +426,11 @@ export const mockSupabase = {
     async getSession() {
       const { session } = db.getSession();
       return { data: { session }, error: null };
+    },
+
+    async getUser() {
+      const { session } = db.getSession();
+      return { data: { user: session?.user ?? null }, error: null };
     },
 
     onAuthStateChange(callback: (event: string, session: any | null) => void) {
@@ -453,6 +512,11 @@ export const mockSupabase = {
       db.setSession(null);
       authCallbacks.forEach((cb) => cb('SIGNED_OUT', null));
       return { error: null };
+    },
+
+    async resend({ type, email }: { type: string; email: string }) {
+      // No-op in mock — just return success
+      return { data: {}, error: null };
     },
   },
 

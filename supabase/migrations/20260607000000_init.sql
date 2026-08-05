@@ -9,6 +9,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================================
 -- DROP EXISTING TABLES (clean slate, order matters for FK deps)
 -- ============================================================
+DROP TABLE IF EXISTS public.ai_note_metadata CASCADE;
+DROP TABLE IF EXISTS public.saved_community_notes CASCADE;
+DROP TABLE IF EXISTS public.note_upvotes CASCADE;
 DROP TABLE IF EXISTS public.settings CASCADE;
 DROP TABLE IF EXISTS public.quizzes CASCADE;
 DROP TABLE IF EXISTS public.flashcards CASCADE;
@@ -104,10 +107,10 @@ CREATE TABLE public.notes (
   textbook_chapter TEXT,
   textbook_page TEXT,
   is_pinned BOOLEAN DEFAULT FALSE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  is_public BOOLEAN DEFAULT FALSE NOT NULL,
   ai_summary TEXT,
-  is_public BOOLEAN DEFAULT FALSE NOT NULL
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
 -- ============================================================
@@ -177,14 +180,49 @@ CREATE TABLE public.settings (
 );
 
 -- ============================================================
+-- 12. v2: COMMUNITY / AI TABLES
+-- ============================================================
+CREATE TABLE public.note_upvotes (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  note_id UUID REFERENCES public.notes(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(note_id, user_id)
+);
+
+CREATE TABLE public.saved_community_notes (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  note_id UUID REFERENCES public.notes(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, note_id)
+);
+
+CREATE TABLE public.ai_note_metadata (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  note_id UUID REFERENCES public.notes(id) ON DELETE CASCADE UNIQUE NOT NULL,
+  summary_bullets JSONB DEFAULT '[]'::jsonb NOT NULL,
+  key_terms JSONB DEFAULT '[]'::jsonb NOT NULL,
+  key_formulas JSONB DEFAULT '[]'::jsonb NOT NULL,
+  auto_dot_point_ids JSONB DEFAULT '[]'::jsonb NOT NULL,
+  generated_flashcards JSONB DEFAULT '[]'::jsonb NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
 -- PERFORMANCE INDEXES
 -- ============================================================
 CREATE INDEX idx_student_subjects_user ON public.student_subjects(user_id);
 CREATE INDEX idx_assessments_user_due ON public.assessments(user_id, due_date);
 CREATE INDEX idx_marks_user_subject ON public.marks(user_id, subject_id);
 CREATE INDEX idx_notes_user_subject ON public.notes(user_id, subject_id);
+CREATE INDEX idx_notes_is_public ON public.notes(is_public);
 CREATE INDEX idx_notifications_user_unread ON public.notifications(user_id, is_read);
 CREATE INDEX idx_study_sessions_user ON public.study_sessions(user_id);
+CREATE INDEX idx_upvotes_note_id ON public.note_upvotes(note_id);
+CREATE INDEX idx_saved_notes_user_id ON public.saved_community_notes(user_id);
+CREATE INDEX idx_ai_metadata_note_id ON public.ai_note_metadata(note_id);
 
 -- ============================================================
 -- ROW LEVEL SECURITY (RLS)
@@ -200,11 +238,12 @@ ALTER TABLE public.study_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.note_upvotes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.saved_community_notes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ai_note_metadata ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- USERS policies
--- The trigger (SECURITY DEFINER) handles initial row creation.
--- Authenticated users can read/update their own row only.
 -- ============================================================
 CREATE POLICY "users_select_own" ON public.users
   FOR SELECT USING (auth.uid() = id);
@@ -213,8 +252,7 @@ CREATE POLICY "users_update_own" ON public.users
   FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
 -- ============================================================
--- SUBJECTS policies
--- Anyone can read. Only admins can write.
+-- SUBJECTS policies — public read, admin write
 -- ============================================================
 CREATE POLICY "subjects_select_all" ON public.subjects
   FOR SELECT USING (TRUE);
@@ -228,7 +266,6 @@ CREATE POLICY "subjects_admin_write" ON public.subjects
 
 -- ============================================================
 -- STUDENT SUBJECTS policies
--- Explicit INSERT + SELECT + DELETE for the authenticated user.
 -- ============================================================
 CREATE POLICY "student_subjects_select_own" ON public.student_subjects
   FOR SELECT USING (auth.uid() = user_id);
@@ -236,43 +273,150 @@ CREATE POLICY "student_subjects_select_own" ON public.student_subjects
 CREATE POLICY "student_subjects_insert_own" ON public.student_subjects
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "student_subjects_update_own" ON public.student_subjects
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
 CREATE POLICY "student_subjects_delete_own" ON public.student_subjects
   FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
--- All other table policies — own rows only
+-- ASSESSMENTS policies
 -- ============================================================
-CREATE POLICY "assessments_own" ON public.assessments
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "assessments_select_own" ON public.assessments
+  FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "marks_own" ON public.marks
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "assessments_insert_own" ON public.assessments
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "assessments_update_own" ON public.assessments
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "assessments_delete_own" ON public.assessments
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- MARKS policies
+-- ============================================================
+CREATE POLICY "marks_select_own" ON public.marks
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "marks_insert_own" ON public.marks
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "marks_update_own" ON public.marks
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "marks_delete_own" ON public.marks
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- NOTES policies — public notes visible to all, private = owner only
+-- ============================================================
 CREATE POLICY "notes_select" ON public.notes
   FOR SELECT USING (auth.uid() = user_id OR is_public = TRUE);
 
-CREATE POLICY "notes_write" ON public.notes
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notes_insert_own" ON public.notes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "notifications_own" ON public.notifications
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notes_update_own" ON public.notes
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "study_sessions_own" ON public.study_sessions
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notes_delete_own" ON public.notes
+  FOR DELETE USING (auth.uid() = user_id);
 
-CREATE POLICY "flashcards_own" ON public.flashcards
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- ============================================================
+-- NOTIFICATIONS policies
+-- ============================================================
+CREATE POLICY "notifications_select_own" ON public.notifications
+  FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "quizzes_own" ON public.quizzes
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notifications_insert_own" ON public.notifications
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "settings_own" ON public.settings
-  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notifications_update_own" ON public.notifications
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "notifications_delete_own" ON public.notifications
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- STUDY SESSIONS policies
+-- ============================================================
+CREATE POLICY "study_sessions_select_own" ON public.study_sessions
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "study_sessions_insert_own" ON public.study_sessions
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "study_sessions_delete_own" ON public.study_sessions
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- FLASHCARDS / QUIZZES / SETTINGS policies
+-- ============================================================
+CREATE POLICY "flashcards_own_select" ON public.flashcards
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "flashcards_own_insert" ON public.flashcards
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "flashcards_own_update" ON public.flashcards
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "flashcards_own_delete" ON public.flashcards
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "quizzes_own_select" ON public.quizzes
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "quizzes_own_insert" ON public.quizzes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "quizzes_own_delete" ON public.quizzes
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "settings_own_select" ON public.settings
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "settings_own_insert" ON public.settings
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "settings_own_update" ON public.settings
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- v2: note_upvotes / saved_community_notes / ai_note_metadata
+-- ============================================================
+CREATE POLICY "upvotes_select_all" ON public.note_upvotes
+  FOR SELECT USING (true);
+
+CREATE POLICY "upvotes_insert_own" ON public.note_upvotes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "upvotes_delete_own" ON public.note_upvotes
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "saved_notes_select_own" ON public.saved_community_notes
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "saved_notes_insert_own" ON public.saved_community_notes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "saved_notes_delete_own" ON public.saved_community_notes
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "ai_metadata_select_all" ON public.ai_note_metadata
+  FOR SELECT USING (true);
+
+CREATE POLICY "ai_metadata_insert_service" ON public.ai_note_metadata
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "ai_metadata_update_service" ON public.ai_note_metadata
+  FOR UPDATE USING (true);
 
 -- ============================================================
 -- TRIGGER: Sync auth.users → public.users + create settings
--- SECURITY DEFINER bypasses RLS — safe because it only runs
--- after a successful auth.users INSERT.
+-- SECURITY DEFINER bypasses RLS — safe for post-signup user creation
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
