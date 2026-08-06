@@ -71,6 +71,14 @@ export default function ManageSubjectsModal({ isOpen, onClose }: ManageSubjectsM
     setSuccessMsg('');
 
     try {
+      // Ensure user profile exists in public.users
+      await supabase.from('users').upsert({
+        id: user.id,
+        email: user.email || 'student@girrastudy.com',
+        full_name: user.user_metadata?.full_name || 'Student',
+        role: 'student',
+      });
+
       const { error } = await supabase.from('student_subjects').insert({
         user_id: user.id,
         subject_id: selectedSubjectId,

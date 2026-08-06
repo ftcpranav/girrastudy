@@ -327,10 +327,27 @@ export default function Dashboard() {
               </button>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-              {enrolledSubjects.map((sub) => {
-                const metrics = calculateSubjectMetrics(sub.subject_id);
-                return (
+            {enrolledSubjects.length === 0 ? (
+              <div className="mt-4 p-8 glass-card rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 text-center flex flex-col items-center justify-center">
+                <BookOpen className="h-10 w-10 text-emerald-500 mb-3 opacity-80" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Subjects Enrolled Yet</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                  Add your HSC subjects to enable assessment tracking, past paper archives, markbook logging, and ATAR calculations.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsManageSubjectsOpen(true)}
+                  className="mt-4 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Enrol Your Subjects Now</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                {enrolledSubjects.map((sub) => {
+                  const metrics = calculateSubjectMetrics(sub.subject_id);
+                  return (
                   <button
                     key={sub.id}
                     onClick={() => router.push(`/subjects/${sub.subject_id}`)}
@@ -387,18 +404,8 @@ export default function Dashboard() {
                   </button>
                 );
               })}
-              {enrolledSubjects.length === 0 && (
-                <div className="sm:col-span-2 text-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/10">
-                  <p className="text-sm text-slate-500 italic">No enrolled subjects found.</p>
-                  <button
-                    onClick={() => router.push('/onboarding')}
-                    className="mt-3 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition-all shadow-sm"
-                  >
-                    Select Subjects
-                  </button>
-                </div>
-              )}
             </div>
+          )}
           </div>
         </div>
 
