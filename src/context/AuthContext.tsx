@@ -117,40 +117,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Onboarding & Route Protection logic
+  // Route Protection logic
   useEffect(() => {
     // Wait until both initial auth check and profile fetching complete
     if (loading || (user && profileLoading)) return;
 
     const isPublicRoute = pathname === '/' || pathname === '/login';
-    const isOnboardingRoute = pathname === '/onboarding';
 
     if (!user) {
       // Redirect unauthenticated users to landing/login if trying to access private routes
-      if (!isPublicRoute && !isOnboardingRoute) {
+      if (!isPublicRoute && pathname !== '/onboarding') {
         router.push('/');
       }
     } else {
-      // User is authenticated. Check if onboarding is truly incomplete.
-      // Brand-new account only needs onboarding if year_group is missing AND they have no enrolled subjects.
-      const hasCompletedOnboarding =
-        Boolean(profile?.year_group) ||
-        enrolledSubjects.length > 0 ||
-        profile?.role === 'admin';
-
-      if (!hasCompletedOnboarding) {
-        // Redirect to onboarding if incomplete
-        if (!isOnboardingRoute) {
-          router.push('/onboarding');
-        }
-      } else {
-        // Prevent access to landing or onboarding once logged in / onboarded
-        if (isPublicRoute || isOnboardingRoute) {
-          router.push('/dashboard');
-        }
+      // Authenticated user — if on landing page or login, send straight to /dashboard
+      if (isPublicRoute) {
+        router.push('/dashboard');
       }
     }
-  }, [user, profile, enrolledSubjects, loading, profileLoading, pathname, router]);
+  }, [user, loading, profileLoading, pathname, router]);
 
   const signOut = async () => {
     setLoading(true);
