@@ -1,14 +1,12 @@
 -- ============================================================
--- GirraStudy — Fully Idempotent Production Database Migration
--- Run this ENTIRE script in: Supabase Dashboard > SQL Editor > New Query
+-- GIRRASTUDY COMPLETE DATABASE RESET & SYNC SCRIPT
+-- Copy & Run this script in: Supabase Dashboard > SQL Editor > New Query
 -- ============================================================
 
--- Enable Required Extensions
+-- 1. Enable Required Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ============================================================
--- DROP EXISTING TABLES (clean slate, order matters for FK deps)
--- ============================================================
+-- 2. Drop existing public tables in cascade order
 DROP TABLE IF EXISTS public.ai_note_metadata CASCADE;
 DROP TABLE IF EXISTS public.saved_community_notes CASCADE;
 DROP TABLE IF EXISTS public.note_upvotes CASCADE;
@@ -24,9 +22,7 @@ DROP TABLE IF EXISTS public.student_subjects CASCADE;
 DROP TABLE IF EXISTS public.subjects CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
 
--- ============================================================
--- 1. USERS (Public profile synced from auth.users)
--- ============================================================
+-- 3. USERS TABLE (Public profile synced from auth.users)
 CREATE TABLE public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
@@ -38,9 +34,7 @@ CREATE TABLE public.users (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 2. SUBJECTS (Pre-seeded catalogue, admin managed)
--- ============================================================
+-- 4. SUBJECTS TABLE & SEED CATALOGUE
 CREATE TABLE public.subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT UNIQUE NOT NULL,
@@ -49,21 +43,40 @@ CREATE TABLE public.subjects (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 3. STUDENT SUBJECTS (Enrolment junction table)
--- ============================================================
+INSERT INTO public.subjects (name, code) VALUES
+  ('English Advanced', 'ENG_ADV'),
+  ('English Standard', 'ENG_STD'),
+  ('English Extension 1', 'ENG_EXT1'),
+  ('English Extension 2', 'ENG_EXT2'),
+  ('Mathematics Advanced', 'MATH_ADV'),
+  ('Mathematics Extension 1', 'MATH_EXT1'),
+  ('Mathematics Extension 2', 'MATH_EXT2'),
+  ('Chemistry', 'CHEM'),
+  ('Physics', 'PHYS'),
+  ('Biology', 'BIOL'),
+  ('Economics', 'ECON'),
+  ('Business Studies', 'BUSS'),
+  ('Legal Studies', 'LEGL'),
+  ('Modern History', 'HIST_MOD'),
+  ('Ancient History', 'HIST_ANC'),
+  ('Software Engineering', 'SOFT_ENG'),
+  ('Engineering Studies', 'ENG_STUD'),
+  ('Information Processes and Technology', 'IPT'),
+  ('PDHPE', 'PDHPE'),
+  ('Studies of Religion', 'SOR')
+ON CONFLICT (code) DO NOTHING;
+
+-- 5. STUDENT SUBJECTS TABLE
 CREATE TABLE public.student_subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
   enrolled_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  color_hex TEXT NOT NULL DEFAULT '#6366F1',
+  color_hex TEXT NOT NULL DEFAULT '#10b981',
   UNIQUE(user_id, subject_id)
 );
 
--- ============================================================
--- 4. ASSESSMENTS
--- ============================================================
+-- 6. APP CORE TABLES
 CREATE TABLE public.assessments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -78,9 +91,6 @@ CREATE TABLE public.assessments (
   completed_at TIMESTAMPTZ
 );
 
--- ============================================================
--- 5. MARKS
--- ============================================================
 CREATE TABLE public.marks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -91,9 +101,6 @@ CREATE TABLE public.marks (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 6. NOTES
--- ============================================================
 CREATE TABLE public.notes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -113,9 +120,6 @@ CREATE TABLE public.notes (
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 7. NOTIFICATIONS
--- ============================================================
 CREATE TABLE public.notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -126,9 +130,6 @@ CREATE TABLE public.notifications (
   related_assessment_id UUID REFERENCES public.assessments(id) ON DELETE CASCADE
 );
 
--- ============================================================
--- 8. STUDY SESSIONS (Focus Timer Logging)
--- ============================================================
 CREATE TABLE public.study_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -138,9 +139,6 @@ CREATE TABLE public.study_sessions (
   completed_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 9. FLASHCARDS (Spaced Repetition)
--- ============================================================
 CREATE TABLE public.flashcards (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -154,9 +152,6 @@ CREATE TABLE public.flashcards (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 10. QUIZZES (Practice Quiz Deck)
--- ============================================================
 CREATE TABLE public.quizzes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -168,9 +163,6 @@ CREATE TABLE public.quizzes (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 11. SETTINGS
--- ============================================================
 CREATE TABLE public.settings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID UNIQUE NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -179,9 +171,6 @@ CREATE TABLE public.settings (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- ============================================================
--- 12. v2: COMMUNITY / AI TABLES
--- ============================================================
 CREATE TABLE public.note_upvotes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   note_id UUID REFERENCES public.notes(id) ON DELETE CASCADE NOT NULL,
@@ -210,23 +199,18 @@ CREATE TABLE public.ai_note_metadata (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ============================================================
--- PERFORMANCE INDEXES
--- ============================================================
-CREATE INDEX idx_student_subjects_user ON public.student_subjects(user_id);
-CREATE INDEX idx_assessments_user_due ON public.assessments(user_id, due_date);
-CREATE INDEX idx_marks_user_subject ON public.marks(user_id, subject_id);
-CREATE INDEX idx_notes_user_subject ON public.notes(user_id, subject_id);
-CREATE INDEX idx_notes_is_public ON public.notes(is_public);
-CREATE INDEX idx_notifications_user_unread ON public.notifications(user_id, is_read);
-CREATE INDEX idx_study_sessions_user ON public.study_sessions(user_id);
-CREATE INDEX idx_upvotes_note_id ON public.note_upvotes(note_id);
-CREATE INDEX idx_saved_notes_user_id ON public.saved_community_notes(user_id);
-CREATE INDEX idx_ai_metadata_note_id ON public.ai_note_metadata(note_id);
+-- 7. CRITICAL FIX: Sync ALL existing accounts in auth.users into public.users!
+INSERT INTO public.users (id, email, full_name, role)
+SELECT 
+  id,
+  email,
+  COALESCE(raw_user_meta_data->>'full_name', 'Student'),
+  'student'
+FROM auth.users
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email;
 
--- ============================================================
--- ROW LEVEL SECURITY (RLS)
--- ============================================================
+-- 8. Enable Row Level Security (RLS)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_subjects ENABLE ROW LEVEL SECURITY;
@@ -242,185 +226,64 @@ ALTER TABLE public.note_upvotes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.saved_community_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_note_metadata ENABLE ROW LEVEL SECURITY;
 
--- ============================================================
--- USERS policies
--- ============================================================
-CREATE POLICY "users_select_own" ON public.users
-  FOR SELECT USING (auth.uid() = id);
+-- 9. RLS Policies
+CREATE POLICY "users_select_own" ON public.users FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "users_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
-CREATE POLICY "users_insert_own" ON public.users
-  FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "subjects_select_all" ON public.subjects FOR SELECT USING (TRUE);
 
-CREATE POLICY "users_update_own" ON public.users
-  FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "student_subjects_select_own" ON public.student_subjects FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "student_subjects_insert_own" ON public.student_subjects FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "student_subjects_update_own" ON public.student_subjects FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "student_subjects_delete_own" ON public.student_subjects FOR DELETE USING (auth.uid() = user_id);
 
--- ============================================================
--- SUBJECTS policies — public read, admin write
--- ============================================================
-CREATE POLICY "subjects_select_all" ON public.subjects
-  FOR SELECT USING (TRUE);
+CREATE POLICY "assessments_select_own" ON public.assessments FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "assessments_insert_own" ON public.assessments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "assessments_update_own" ON public.assessments FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "assessments_delete_own" ON public.assessments FOR DELETE USING (auth.uid() = user_id);
 
-CREATE POLICY "subjects_admin_write" ON public.subjects
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
-  ) WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "marks_select_own" ON public.marks FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "marks_insert_own" ON public.marks FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "marks_update_own" ON public.marks FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "marks_delete_own" ON public.marks FOR DELETE USING (auth.uid() = user_id);
 
--- ============================================================
--- STUDENT SUBJECTS policies
--- ============================================================
-CREATE POLICY "student_subjects_select_own" ON public.student_subjects
-  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "notes_select" ON public.notes FOR SELECT USING (auth.uid() = user_id OR is_public = TRUE);
+CREATE POLICY "notes_insert_own" ON public.notes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notes_update_own" ON public.notes FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notes_delete_own" ON public.notes FOR DELETE USING (auth.uid() = user_id);
 
-CREATE POLICY "student_subjects_insert_own" ON public.student_subjects
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notifications_select_own" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "notifications_insert_own" ON public.notifications FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notifications_update_own" ON public.notifications FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notifications_delete_own" ON public.notifications FOR DELETE USING (auth.uid() = user_id);
 
-CREATE POLICY "student_subjects_update_own" ON public.student_subjects
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "study_sessions_select_own" ON public.study_sessions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "study_sessions_insert_own" ON public.study_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "student_subjects_delete_own" ON public.student_subjects
-  FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "flashcards_select_own" ON public.flashcards FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "flashcards_insert_own" ON public.flashcards FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- ============================================================
--- ASSESSMENTS policies
--- ============================================================
-CREATE POLICY "assessments_select_own" ON public.assessments
-  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "quizzes_select_own" ON public.quizzes FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "quizzes_insert_own" ON public.quizzes FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "assessments_insert_own" ON public.assessments
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "settings_select_own" ON public.settings FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "settings_insert_own" ON public.settings FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "settings_update_own" ON public.settings FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "assessments_update_own" ON public.assessments
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "upvotes_select_all" ON public.note_upvotes FOR SELECT USING (true);
+CREATE POLICY "upvotes_insert_own" ON public.note_upvotes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "upvotes_delete_own" ON public.note_upvotes FOR DELETE USING (auth.uid() = user_id);
 
-CREATE POLICY "assessments_delete_own" ON public.assessments
-  FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "saved_notes_select_own" ON public.saved_community_notes FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "saved_notes_insert_own" ON public.saved_community_notes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "saved_notes_delete_own" ON public.saved_community_notes FOR DELETE USING (auth.uid() = user_id);
 
--- ============================================================
--- MARKS policies
--- ============================================================
-CREATE POLICY "marks_select_own" ON public.marks
-  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "ai_metadata_select_all" ON public.ai_note_metadata FOR SELECT USING (true);
+CREATE POLICY "ai_metadata_insert_service" ON public.ai_note_metadata FOR INSERT WITH CHECK (true);
+CREATE POLICY "ai_metadata_update_service" ON public.ai_note_metadata FOR UPDATE USING (true);
 
-CREATE POLICY "marks_insert_own" ON public.marks
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "marks_update_own" ON public.marks
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "marks_delete_own" ON public.marks
-  FOR DELETE USING (auth.uid() = user_id);
-
--- ============================================================
--- NOTES policies — public notes visible to all, private = owner only
--- ============================================================
-CREATE POLICY "notes_select" ON public.notes
-  FOR SELECT USING (auth.uid() = user_id OR is_public = TRUE);
-
-CREATE POLICY "notes_insert_own" ON public.notes
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "notes_update_own" ON public.notes
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "notes_delete_own" ON public.notes
-  FOR DELETE USING (auth.uid() = user_id);
-
--- ============================================================
--- NOTIFICATIONS policies
--- ============================================================
-CREATE POLICY "notifications_select_own" ON public.notifications
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "notifications_insert_own" ON public.notifications
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "notifications_update_own" ON public.notifications
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "notifications_delete_own" ON public.notifications
-  FOR DELETE USING (auth.uid() = user_id);
-
--- ============================================================
--- STUDY SESSIONS policies
--- ============================================================
-CREATE POLICY "study_sessions_select_own" ON public.study_sessions
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "study_sessions_insert_own" ON public.study_sessions
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "study_sessions_delete_own" ON public.study_sessions
-  FOR DELETE USING (auth.uid() = user_id);
-
--- ============================================================
--- FLASHCARDS / QUIZZES / SETTINGS policies
--- ============================================================
-CREATE POLICY "flashcards_own_select" ON public.flashcards
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "flashcards_own_insert" ON public.flashcards
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "flashcards_own_update" ON public.flashcards
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "flashcards_own_delete" ON public.flashcards
-  FOR DELETE USING (auth.uid() = user_id);
-
-CREATE POLICY "quizzes_own_select" ON public.quizzes
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "quizzes_own_insert" ON public.quizzes
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "quizzes_own_delete" ON public.quizzes
-  FOR DELETE USING (auth.uid() = user_id);
-
-CREATE POLICY "settings_own_select" ON public.settings
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "settings_own_insert" ON public.settings
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "settings_own_update" ON public.settings
-  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
--- ============================================================
--- v2: note_upvotes / saved_community_notes / ai_note_metadata
--- ============================================================
-CREATE POLICY "upvotes_select_all" ON public.note_upvotes
-  FOR SELECT USING (true);
-
-CREATE POLICY "upvotes_insert_own" ON public.note_upvotes
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "upvotes_delete_own" ON public.note_upvotes
-  FOR DELETE USING (auth.uid() = user_id);
-
-CREATE POLICY "saved_notes_select_own" ON public.saved_community_notes
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "saved_notes_insert_own" ON public.saved_community_notes
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "saved_notes_delete_own" ON public.saved_community_notes
-  FOR DELETE USING (auth.uid() = user_id);
-
-CREATE POLICY "ai_metadata_select_all" ON public.ai_note_metadata
-  FOR SELECT USING (true);
-
-CREATE POLICY "ai_metadata_insert_service" ON public.ai_note_metadata
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "ai_metadata_update_service" ON public.ai_note_metadata
-  FOR UPDATE USING (true);
-
--- ============================================================
--- TRIGGER: Sync auth.users → public.users + create settings
--- SECURITY DEFINER bypasses RLS — safe for post-signup user creation
--- ============================================================
+-- 10. Auto Trigger for FUTURE Sign Ups
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -432,11 +295,7 @@ BEGIN
     'student'
   )
   ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    full_name = CASE
-      WHEN EXCLUDED.full_name != 'Student' THEN EXCLUDED.full_name
-      ELSE public.users.full_name
-    END;
+    email = EXCLUDED.email;
 
   INSERT INTO public.settings (user_id, dark_mode)
   VALUES (NEW.id, TRUE)
@@ -450,29 +309,3 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- ============================================================
--- SEED DATA: HSC Subjects Catalogue
--- ============================================================
-INSERT INTO public.subjects (name, code) VALUES
-  ('English Advanced', 'ENG_ADV'),
-  ('English Standard', 'ENG_STD'),
-  ('English Extension 1', 'ENG_EXT1'),
-  ('English Extension 2', 'ENG_EXT2'),
-  ('Mathematics Advanced', 'MATH_ADV'),
-  ('Mathematics Extension 1', 'MATH_EXT1'),
-  ('Mathematics Extension 2', 'MATH_EXT2'),
-  ('Chemistry', 'CHEM'),
-  ('Physics', 'PHYS'),
-  ('Biology', 'BIOL'),
-  ('Economics', 'ECON'),
-  ('Business Studies', 'BUSS'),
-  ('Legal Studies', 'LEGL'),
-  ('Modern History', 'HIST_MOD'),
-  ('Ancient History', 'HIST_ANC'),
-  ('Software Engineering', 'SOFT_ENG'),
-  ('Engineering Studies', 'ENG_STUD'),
-  ('Information Processes and Technology', 'IPT'),
-  ('PDHPE', 'PDHPE'),
-  ('Studies of Religion', 'SOR')
-ON CONFLICT (code) DO NOTHING;
