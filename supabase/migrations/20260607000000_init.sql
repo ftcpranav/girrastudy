@@ -1,12 +1,16 @@
 -- ============================================================
--- GIRRASTUDY COMPLETE DATABASE RESET & SYNC SCRIPT
+-- GIRRASTUDY NUCLEAR HARD RESET SCRIPT
+-- WARNING: THIS ERASES ALL ACCOUNTS, PASSWORDS, AND DATA!
 -- Copy & Run this script in: Supabase Dashboard > SQL Editor > New Query
 -- ============================================================
 
 -- 1. Enable Required Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Drop existing public tables in cascade order
+-- 2. TRUNCATE / DELETE ALL AUTH USERS (Erases all accounts & passwords)
+TRUNCATE TABLE auth.users CASCADE;
+
+-- 3. DROP ALL PUBLIC TABLES IN CASCADE ORDER
 DROP TABLE IF EXISTS public.ai_note_metadata CASCADE;
 DROP TABLE IF EXISTS public.saved_community_notes CASCADE;
 DROP TABLE IF EXISTS public.note_upvotes CASCADE;
@@ -22,7 +26,7 @@ DROP TABLE IF EXISTS public.student_subjects CASCADE;
 DROP TABLE IF EXISTS public.subjects CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
 
--- 3. USERS TABLE (Public profile synced from auth.users)
+-- 4. RECREATE USERS TABLE
 CREATE TABLE public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
@@ -34,7 +38,7 @@ CREATE TABLE public.users (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- 4. SUBJECTS TABLE & SEED CATALOGUE
+-- 5. RECREATE SUBJECTS TABLE & SEED CATALOGUE
 CREATE TABLE public.subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT UNIQUE NOT NULL,
@@ -66,7 +70,7 @@ INSERT INTO public.subjects (name, code) VALUES
   ('Studies of Religion', 'SOR')
 ON CONFLICT (code) DO NOTHING;
 
--- 5. STUDENT SUBJECTS TABLE
+-- 6. RECREATE STUDENT SUBJECTS TABLE
 CREATE TABLE public.student_subjects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -76,7 +80,7 @@ CREATE TABLE public.student_subjects (
   UNIQUE(user_id, subject_id)
 );
 
--- 6. APP CORE TABLES
+-- 7. RECREATE CORE TABLES
 CREATE TABLE public.assessments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -199,18 +203,7 @@ CREATE TABLE public.ai_note_metadata (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. CRITICAL FIX: Sync ALL existing accounts in auth.users into public.users!
-INSERT INTO public.users (id, email, full_name, role)
-SELECT 
-  id,
-  email,
-  COALESCE(raw_user_meta_data->>'full_name', 'Student'),
-  'student'
-FROM auth.users
-ON CONFLICT (id) DO UPDATE SET
-  email = EXCLUDED.email;
-
--- 8. Enable Row Level Security (RLS)
+-- 8. ENABLE ROW LEVEL SECURITY (RLS)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_subjects ENABLE ROW LEVEL SECURITY;
@@ -226,7 +219,7 @@ ALTER TABLE public.note_upvotes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.saved_community_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_note_metadata ENABLE ROW LEVEL SECURITY;
 
--- 9. RLS Policies
+-- 9. RLS POLICIES
 CREATE POLICY "users_select_own" ON public.users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "users_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
@@ -283,7 +276,7 @@ CREATE POLICY "ai_metadata_select_all" ON public.ai_note_metadata FOR SELECT USI
 CREATE POLICY "ai_metadata_insert_service" ON public.ai_note_metadata FOR INSERT WITH CHECK (true);
 CREATE POLICY "ai_metadata_update_service" ON public.ai_note_metadata FOR UPDATE USING (true);
 
--- 10. Auto Trigger for FUTURE Sign Ups
+-- 10. AUTO TRIGGER FOR NEW USER SIGN UPS
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
